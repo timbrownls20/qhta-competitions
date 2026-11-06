@@ -212,20 +212,7 @@ final class Qhta_Competitions_Outcomes {
 	 * @return array
 	 */
 	public static function registration_token( $tokens, $id, $config ) {
-		if ( 'bursary' !== $config['type'] && empty( $config['award_config']['coupon_enabled'] ) ) {
-			return $tokens;
-		}
-		$code = class_exists( 'Qhta_Competitions_Bursary' ) ? Qhta_Competitions_Bursary::ensure_coupon( $id ) : null;
-		if ( $code ) {
-			$product = ! empty( $config['award_config']['coupon_product_id'] ) ? get_permalink( (int) $config['award_config']['coupon_product_id'] ) : '';
-			$tokens['registration_instructions'] = sprintf(
-				/* translators: 1: coupon code, 2: registration page, 3: email */
-				__( "Your free registration code is %1\$s.\nRegister at %2\$s and enter the code at checkout — your registration will be free. The code works once, and only with the email address %3\$s.", 'qhta-competitions' ),
-				strtoupper( $code ),
-				$product ? $product : home_url( '/' ),
-				(string) get_post_meta( $id, '_qc_submitter_email', true )
-			);
-		} else {
+		if ( 'bursary' === $config['type'] ) {
 			$tokens['registration_instructions'] = __( 'QHTA will arrange your free conference registration and email you the details — you do not need to register or pay.', 'qhta-competitions' );
 		}
 		return $tokens;

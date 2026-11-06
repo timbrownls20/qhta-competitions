@@ -1,5 +1,56 @@
 # Changelog
 
+## 1.0.1 — coupon removed (not yet deployed)
+
+### Removed
+- The bursary registration coupon and the round's **Award (bursary)** box
+  (coupon toggle, product ID, variation ID). Free ECC registration for winners
+  is arranged by hand: the award email's `{{registration_instructions}}`
+  always reads "QHTA will arrange your free conference registration and email
+  you the details — you do not need to register or pay."
+  - `includes/class-bursary.php` deleted; the plugin no longer loads anything
+    for WooCommerce. The judge wp-admin filters for WooCommerce stay.
+  - `award_config` removed from the round config, the presets and validation.
+    Rounds saved earlier keep a harmless `_qc_award_config` meta that is now
+    ignored.
+  - The Health panel no longer has a "Bursary coupon" check.
+  - This closes Q12: complimentary orders are made by hand.
+
+## 1.0.0 — M6 release candidate (not yet deployed)
+
+First release. Everything from 0.1.0–0.5.0 below, plus:
+
+### Added
+- `scripts/build-zip.sh`: builds the deploy zip after the dual-version check,
+  required files, PHP lint, preset JSON and form-script syntax checks. Ships
+  without tests, docs or tooling.
+- `docs/DEPLOY.md`: staging → live runbook with every server-only check
+  carried over from M2–M5, how to put the form on the ECC page, the live
+  smoke test (one real application, referee-confirmed, then withdrawn),
+  rollback, a during/after-round calendar, and the open items.
+- `docs/PRIVACY.md` and **Settings → Privacy → Policy Guide → QHTA
+  Competitions**: suggested privacy-policy text matching what the plugin
+  does, plus how to handle export/erasure requests.
+- README rewritten as an operator guide (running a round end to end) plus a
+  reference section (flags, fields, emails, data, hooks, tests, release).
+
+### Changed
+- Preset privacy notices now say personal details and files are **removed**
+  after the retention period, rather than entries "deleted", which is what
+  retention actually does.
+- The round's *Shortcode* box explains the two ways to place a form: tag a
+  dedicated page with the round's flag, or on a shared page such as ECC, wrap
+  just the form section in the Feature flag block. Tagging the shared page
+  would hide the whole page during preview.
+
+### Open at release (see docs/DEPLOY.md)
+- Q12 registration coupon vs a complimentary order made by hand (the coupon
+  is built and off). *Resolved in 1.0.1: coupon removed.*
+- Reference codes repeat across rounds closing in the same year.
+- Which PMPro levels count as membership.
+- Bursary wording against the source PDF.
+- Typed school names for limits and conflict of interest.
+
 ## 0.5.0 — M5 (unreleased)
 
 ### Added

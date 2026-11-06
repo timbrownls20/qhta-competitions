@@ -69,7 +69,7 @@ if ( 'setup' === $qc_step ) {
 	$qc_check( 'referee' === $qc_bc['confirmer']['role'] && 'none' === $qc_cc['confirmer']['role'], 'confirmer roles' );
 	$qc_check( '2027-01-28 14:00:00' === $qc_bc['closes_at'], 'bursary closes 29 Jan 2027 00:00 AEST stored as UTC (' . $qc_bc['closes_at'] . ')' );
 	$qc_check( '2027-01-29T00:00' === Qhta_Competitions_Util::utc_to_local_input( $qc_bc['closes_at'] ), 'close date round-trips to local input' );
-	$qc_check( false === $qc_bc['award_config']['coupon_enabled'] && 4311 === $qc_bc['award_config']['coupon_product_id'], 'bursary coupon off by default, product 4311' );
+	$qc_check( ! isset( $qc_bc['award_config'] ), 'no award/coupon config' );
 	$qc_check( true === $qc_bc['anonymise'], 'anonymise default true' );
 
 	// Config round-trips through the admin save path without loss.
@@ -101,11 +101,6 @@ if ( 'setup' === $qc_step ) {
 				'_present'               => '1',
 				'exclude_after_headings' => implode( "\n", $qc_before['word_count_rules']['exclude_after_headings'] ),
 			) + ( $qc_before['word_count_rules']['include_footnotes'] ? array( 'include_footnotes' => '1' ) : array() ),
-			'qc_award'     => array(
-				'_present'            => '1',
-				'coupon_product_id'   => null === $qc_before['award_config']['coupon_product_id'] ? '' : (string) $qc_before['award_config']['coupon_product_id'],
-				'coupon_variation_id' => null === $qc_before['award_config']['coupon_variation_id'] ? '' : (string) $qc_before['award_config']['coupon_variation_id'],
-			) + ( $qc_before['award_config']['coupon_enabled'] ? array( 'coupon_enabled' => '1' ) : array() ),
 		);
 		foreach ( Qhta_Competitions_Admin_Programs::JSON_SECTIONS as $qc_s ) {
 			$_POST['qc_json'][ $qc_s ] = Qhta_Competitions_Util::json_pretty( $qc_before[ $qc_s ] );
@@ -139,7 +134,7 @@ if ( 'setup' === $qc_step ) {
 	$qc_rejected = get_user_meta( get_current_user_id(), Qhta_Competitions_Admin_Programs::REJECTED_META . $qc_comp->ID, true );
 	$qc_check( $qc_before['categories'] === $qc_after['categories'], 'invalid JSON does not overwrite categories' );
 	$qc_check( isset( $qc_rejected['categories']['raw'] ), 'invalid JSON text kept for the user' );
-	$qc_check( $qc_before['word_count_rules'] === $qc_after['word_count_rules'] && $qc_before['award_config'] === $qc_after['award_config'] && $qc_before['anonymise'] === $qc_after['anonymise'], 'partial POST leaves boxes that were not posted untouched' );
+	$qc_check( $qc_before['word_count_rules'] === $qc_after['word_count_rules'] && $qc_before['anonymise'] === $qc_after['anonymise'], 'partial POST leaves boxes that were not posted untouched' );
 	// Semantic validation: duplicate category slug.
 	$qc_errs = Qhta_Competitions_Program_CPT::save_config( $qc_comp->ID, array( 'categories' => array( array( 'slug' => 'a', 'label' => 'A' ), array( 'slug' => 'a', 'label' => 'B' ) ) ) );
 	$qc_check( (bool) $qc_errs && $qc_before['categories'] === Qhta_Competitions_Program_CPT::get_config( $qc_comp->ID )['categories'], 'duplicate slug rejected' );

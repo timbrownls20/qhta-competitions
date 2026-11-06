@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
-"""M5 end-to-end smoke test: outcome emails, bursary coupon, exports, retention, privacy, Health.
+"""M5 end-to-end smoke test: outcome emails, exports, retention, privacy, Health.
 
-DISPOSABLE SITES ONLY. Needs Mailpit and WooCommerce active (for the coupon
-section; skipped otherwise). Run tests/m1-smoke.php setup first.
+DISPOSABLE SITES ONLY. Needs Mailpit. Run tests/m1-smoke.php setup first.
 
     BASE=http://localhost:8089 WP="docker exec qctest-cli-1 wp" \\
     MAILPIT=http://localhost:8025 python3 tests/m5-http-smoke.py
@@ -31,7 +30,6 @@ for k in ('competitions', BKEY, CKEY):
 set_window(BURSARY, -3600, 30 * 86400)
 set_window(COMP, -3600, 30 * 86400)
 php("delete_option('qc_outcome_queue'); wp_clear_scheduled_hook('qc_outcome_batch');")
-WC = php("echo class_exists('WooCommerce') ? 1 : 0;") == '1'
 admin = Client().login('admin', 'admin')
 anon = Client()
 mailpit_clear()
@@ -98,14 +96,13 @@ move(CID['win'], 'qc_in_review', 'qc_shortlisted', 'qc_awarded')
 move(CID['hc'], 'qc_in_review', 'qc_shortlisted', 'qc_commended')
 move(CID['lose'], 'qc_in_review', 'qc_unsuccessful')
 
-# ---- Outcome emails, coupon OFF ---------------------------------------------------
-print('\n# Outcome emails (coupon off)')
-php(f"Qhta_Competitions_Program_CPT::save_config({BURSARY}, array('award_config'=>array('coupon_enabled'=>false,'coupon_product_id'=>4311,'coupon_variation_id'=>null)));")
+# ---- Outcome emails -----------------------------------------------------------------
+print('\n# Outcome emails')
 ids = [BID['award'], BID['commend'], BID['fail'], BID['test'], BID['forfeit']]
 _, url, h, _ = bulk('qc_notify', ids)
 h = h.decode()
 check('page=qc-notify' in url, 'bulk "Notify outcome" opens the preview page')
-check('QHTA will arrange your free conference registration' in h, 'coupon off: award email shows the manual-registration text')
+check('QHTA will arrange your free conference registration' in h, 'award email shows the manual-registration text')
 check('congratulations' in h.lower() and 'commended your application' in h and 'not successful this time' in h, 'previews for awarded, commended and unsuccessful')
 check(B['test'] + ' — test entry' in h and B['forfeit'] + ' — no final outcome yet' in h, 'test entry and undecided entry listed as not emailed')
 check('disabled="disabled"' in h and '3 will be emailed' in h, 'send button disabled until a test is sent; 3 to send')
@@ -143,41 +140,6 @@ s2 = php('echo Qhta_Competitions_Outcomes::run_batch();')
 check(s1 == '20' and left == '5' and s2 == '5', f'batches of 20: sent {s1}, then {s2} (left between: {left})')
 for i in fake:
     php(f"wp_delete_post({i}, true);")
-
-# ---- Coupon ON ---------------------------------------------------------------------
-print('\n# Bursary coupon')
-if not WC:
-    print('SKIP coupon (WooCommerce not active)')
-else:
-    pid = php("$p=get_page_by_path('ecc-registration',OBJECT,'product'); if($p){echo $p->ID;return;} $x=new WC_Product_Simple(); $x->set_name('ECC 2027 registration'); $x->set_slug('ecc-registration'); $x->set_regular_price('120'); $x->set_status('publish'); echo $x->save();")
-    other = php("$p=get_page_by_path('other-thing',OBJECT,'product'); if($p){echo $p->ID;return;} $x=new WC_Product_Simple(); $x->set_name('Other thing'); $x->set_slug('other-thing'); $x->set_regular_price('30'); $x->set_status('publish'); echo $x->save();")
-    php(f"Qhta_Competitions_Program_CPT::save_config({BURSARY}, array('award_config'=>array('coupon_enabled'=>true,'coupon_product_id'=>{pid},'coupon_variation_id'=>null)));")
-    move(BID['forfeit'], 'qc_in_review', 'qc_shortlisted', 'qc_awarded')
-    cid = php(f"echo get_post_meta({BID['forfeit']}, '_qc_coupon_id', true);")
-    c = json.loads(php(f"$c=new WC_Coupon({cid or 0}); echo wp_json_encode(array('code'=>$c->get_code(),'type'=>$c->get_discount_type(),'amount'=>$c->get_amount(),'products'=>$c->get_product_ids(),'emails'=>$c->get_email_restrictions(),'limit'=>$c->get_usage_limit(),'per_user'=>$c->get_usage_limit_per_user(),'individual'=>$c->get_individual_use()));") or '{}')
-    check(c.get('code', '').upper() == 'ECCB-' + B['forfeit'], f"coupon created on award: {c.get('code')}")
-    check(c.get('type') == 'percent' and float(c.get('amount', 0)) == 100 and c.get('products') == [int(pid)] and c.get('emails') == ['forfeit@example.com'] and c.get('limit') == 1 and c.get('per_user') == 1 and c.get('individual') is True,
-          f'coupon: 100%, product {pid} only, applicant email only, single use ({c})')
-    code = c.get('code', '')
-    order = lambda email, prod: php(f"$o=wc_create_order(); $o->add_product(wc_get_product({prod}),1); $o->set_billing_email('{email}'); $o->calculate_totals(); $r=$o->apply_coupon('{code}'); echo is_wp_error($r) ? 'ERR:'.$r->get_error_message() : 'TOTAL:'.$o->get_total(); $o->delete(true);")
-    r1 = order('forfeit@example.com', pid)
-    check(r1 == 'TOTAL:0.00', f'order for the registration product with the applicant email → $0 ({r1})')
-    r2 = order('someone@else.com', pid)
-    check(r2.startswith('ERR:'), f'different email → coupon refused ({r2[:80]})')
-    r3 = order('forfeit@example.com', other)
-    check(r3.startswith('ERR:') or r3 == 'TOTAL:30.00', f'other product → no discount ({r3[:80]})')
-    toks = json.loads(php(f"$c=Qhta_Competitions_Program_CPT::get_config({BURSARY}); echo wp_json_encode(Qhta_Competitions_Mailer::submission_tokens({BID['forfeit']}, $c));"))
-    check(code.upper() in toks.get('registration_instructions', '') and 'forfeit@example.com' in toks['registration_instructions'], 'award email registration text carries the code and email')
-    used = php(f"echo (new WC_Coupon({cid}))->get_usage_count();")
-    move(BID['forfeit'], 'qc_forfeited')
-    check(php(f"echo get_post_status({cid});") == 'publish' and 'already been used' in php(f"echo get_post_meta({BID['forfeit']}, '_qc_log', true);"), f'forfeit after the coupon was used ({used} uses by the trial orders) → kept, logged for manual follow-up')
-    # Unused coupon: award another applicant, then forfeit straight away.
-    php(f"Qhta_Competitions_Submission_CPT::transition({BID['commend']}, 'qc_awarded', 'test', true);")
-    cid2 = php(f"echo get_post_meta({BID['commend']}, '_qc_coupon_id', true);")
-    move(BID['commend'], 'qc_forfeited')
-    check(bool(cid2) and php(f"echo get_post_status({cid2});") == 'trash', 'forfeit with an unused coupon → coupon voided')
-    check(php(f"$id={BID['test']}; Qhta_Competitions_Submission_CPT::transition($id,'qc_shortlisted','x',true); Qhta_Competitions_Submission_CPT::transition($id,'qc_awarded','x',true); echo get_post_meta($id,'_qc_coupon_id',true);") == '', 'no coupon for a test entry')
-    php(f"Qhta_Competitions_Program_CPT::save_config({BURSARY}, array('award_config'=>array('coupon_enabled'=>false,'coupon_product_id'=>4311,'coupon_variation_id'=>null)));")
 
 # ---- Exports -------------------------------------------------------------------------
 print('\n# Exports')

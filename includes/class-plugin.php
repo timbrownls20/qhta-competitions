@@ -77,7 +77,6 @@ final class Qhta_Competitions_Plugin {
 		Qhta_Competitions_Outcomes::init();
 		Qhta_Competitions_Export::init();
 		Qhta_Competitions_Retention::init();
-		add_action( 'plugins_loaded', array( __CLASS__, 'load_integrations' ), 20 );
 		add_action( 'qc_cron', array( __CLASS__, 'cron_heartbeat' ), 1 );
 
 		if ( is_admin() ) {
@@ -130,16 +129,6 @@ final class Qhta_Competitions_Plugin {
 	public static function deactivate() {
 		wp_clear_scheduled_hook( 'qc_cron' );
 		wp_clear_scheduled_hook( 'qc_outcome_batch' );
-	}
-
-	/**
-	 * Optional integrations: the bursary coupon needs WooCommerce (loaded after us).
-	 */
-	public static function load_integrations() {
-		if ( class_exists( 'WooCommerce' ) ) {
-			require_once QC_DIR . 'includes/class-bursary.php';
-			Qhta_Competitions_Bursary::init();
-		}
 	}
 
 	/**

@@ -187,7 +187,6 @@ final class Qhta_Competitions_Admin_Programs {
 		add_meta_box( 'qc_wordcount', __( 'Word count rules', 'qhta-competitions' ), array( __CLASS__, 'box_wordcount' ), $pt, 'normal' );
 		add_meta_box( 'qc_rubric', __( 'Judging rubric', 'qhta-competitions' ), array( __CLASS__, 'box_json' ), $pt, 'normal', 'default', array( 'section' => 'rubric' ) );
 		add_meta_box( 'qc_emails', __( 'Email templates', 'qhta-competitions' ), array( __CLASS__, 'box_json' ), $pt, 'normal', 'default', array( 'section' => 'emails' ) );
-		add_meta_box( 'qc_award', __( 'Award (bursary)', 'qhta-competitions' ), array( __CLASS__, 'box_award' ), $pt, 'normal' );
 	}
 
 	/**
@@ -246,7 +245,7 @@ final class Qhta_Competitions_Admin_Programs {
 		echo '<p class="description">' . esc_html__( 'Put this on the round\'s page.', 'qhta-competitions' ) . ' ';
 		if ( '' !== $key ) {
 			/* translators: %s: flag key */
-			echo esc_html( sprintf( __( 'Also tag that page (and any menu item) with the flag "%s" in the Feature flag box on the page editor, so the page itself is hidden while the round is off or in preview.', 'qhta-competitions' ), $key ) );
+			echo esc_html( sprintf( __( 'The form only appears when the flag "%s" allows it. On a page just for this round, tag the page (and its menu item) with that flag too. On a shared page such as the ECC page, don\'t tag the page — wrap the form\'s section in the Feature flag block instead, so the rest of the page stays visible.', 'qhta-competitions' ), $key ) );
 		}
 		echo '</p>';
 	}
@@ -495,34 +494,6 @@ final class Qhta_Competitions_Admin_Programs {
 		<?php
 	}
 
-	/**
-	 * Award (bursary coupon) box.
-	 *
-	 * @param WP_Post $post Program.
-	 */
-	public static function box_award( $post ) {
-		$c = Qhta_Competitions_Program_CPT::get_config( $post->ID );
-		$a = $c['award_config'];
-		echo '<input type="hidden" name="qc_award[_present]" value="1">';
-		?>
-		<p class="description"><?php esc_html_e( 'Free ECC registration for bursary winners. How winners get it is still undecided (Q12): with the coupon off, the award email says QHTA will arrange registration and an admin creates a complimentary order by hand.', 'qhta-competitions' ); ?></p>
-		<table class="form-table qc-form-table">
-			<tr>
-				<th><?php esc_html_e( 'Registration coupon', 'qhta-competitions' ); ?></th>
-				<td><label><input type="checkbox" name="qc_award[coupon_enabled]" value="1" <?php checked( ! empty( $a['coupon_enabled'] ) ); ?>> <?php esc_html_e( 'On award, create a single-use 100% WooCommerce coupon for the winner', 'qhta-competitions' ); ?></label></td>
-			</tr>
-			<tr>
-				<th><label for="qc_award_product"><?php esc_html_e( 'Product ID', 'qhta-competitions' ); ?></label></th>
-				<td><input type="number" min="1" id="qc_award_product" name="qc_award[coupon_product_id]" value="<?php echo esc_attr( isset( $a['coupon_product_id'] ) ? (string) $a['coupon_product_id'] : '' ); ?>" class="small-text"></td>
-			</tr>
-			<tr>
-				<th><label for="qc_award_variation"><?php esc_html_e( 'Variation ID', 'qhta-competitions' ); ?></label></th>
-				<td><input type="number" min="1" id="qc_award_variation" name="qc_award[coupon_variation_id]" value="<?php echo esc_attr( isset( $a['coupon_variation_id'] ) ? (string) $a['coupon_variation_id'] : '' ); ?>" class="small-text"> <span class="description"><?php esc_html_e( 'Optional: restrict to one ticket variation.', 'qhta-competitions' ); ?></span></td>
-			</tr>
-		</table>
-		<?php
-	}
-
 	/* ---------------------------------------------------------------------
 	 * Save
 	 * ------------------------------------------------------------------ */
@@ -670,15 +641,6 @@ final class Qhta_Competitions_Admin_Programs {
 			$heads                           = isset( $posted['exclude_after_headings'] ) ? sanitize_textarea_field( $posted['exclude_after_headings'] ) : '';
 			$rules['exclude_after_headings'] = array_values( array_filter( array_map( 'trim', explode( "\n", $heads ) ), 'strlen' ) );
 			$config['word_count_rules']      = $rules;
-		}
-
-		$posted = isset( $_POST['qc_award'] ) && is_array( $_POST['qc_award'] ) ? wp_unslash( $_POST['qc_award'] ) : array();
-		if ( ! empty( $posted['_present'] ) ) {
-			$award                        = is_array( $stored['award_config'] ) ? $stored['award_config'] : array();
-			$award['coupon_enabled']      = ! empty( $posted['coupon_enabled'] );
-			$award['coupon_product_id']   = isset( $posted['coupon_product_id'] ) ? trim( sanitize_text_field( $posted['coupon_product_id'] ) ) : null;
-			$award['coupon_variation_id'] = isset( $posted['coupon_variation_id'] ) ? trim( sanitize_text_field( $posted['coupon_variation_id'] ) ) : null;
-			$config['award_config']       = $award;
 		}
 
 		return $config;

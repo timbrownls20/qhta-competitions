@@ -12,7 +12,7 @@
     "anonymise": true,
     "retention_months": 12,
     "max_upload_mb": 10,
-    "privacy_notice": "<p>QHTA collects the details on this form to assess your bursary application. They are seen by QHTA administrators and the bursary selection committee; the committee sees your written piece without your name or school. Your referee receives your name and the program name so they can confirm your application. Unsuccessful applications are deleted 12 months after the round closes. Contact qhta@qhta.com.au with any privacy questions.</p>",
+    "privacy_notice": "<p>QHTA collects the details on this form to assess your bursary application. They are seen by QHTA administrators and the bursary selection committee; the committee sees your written piece without your name or school. Your referee receives your name and the program name so they can confirm your application. If your application is not successful, your personal details and any documents are removed 12 months after the round closes. Contact qhta@qhta.com.au with any privacy questions.</p>",
     "categories": [
       {
         "slug": "ecc-bursary",
@@ -80,7 +80,6 @@
       ]
     },
     "entry_limits": { "per_entrant_per_category": null, "per_school_per_category": null, "per_entrant_total": 1 },
-    "award_config": { "coupon_enabled": false, "coupon_product_id": 4311, "coupon_variation_id": null },
     "word_count_rules": { "include_footnotes": true, "exclude_after_headings": ["Bibliography", "References", "Reference list", "Works cited"] },
     "emails": {
       "submitted": {

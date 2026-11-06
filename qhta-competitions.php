@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       QHTA Competitions
  * Description:       Program rounds for QHTA's submission-based programs (Historical Writing Competition, ECC Bursary): call for submissions, review, outcomes. Replaces the emailed PDF forms. Visibility is controlled by wordpress-feature-flags.
- * Version:           0.5.0
+ * Version:           1.0.1
  * Author:            QHTA
  * License:           GPL-2.0-or-later
  * Requires at least: 6.5
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'QC_VERSION', '0.5.0' );
+define( 'QC_VERSION', '1.0.1' );
 define( 'QC_FILE', __FILE__ );
 define( 'QC_DIR', plugin_dir_path( __FILE__ ) );
 define( 'QC_URL', plugin_dir_url( __FILE__ ) );

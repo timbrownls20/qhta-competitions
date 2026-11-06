@@ -12,7 +12,7 @@
     "anonymise": true,
     "retention_months": 12,
     "max_upload_mb": 10,
-    "privacy_notice": "<p>Most entrants are students under 18, so QHTA collects only the student's name, year level and school — no student contact details. All correspondence goes to the teacher. Entries are seen by QHTA administrators and judges; judges see the entry and its reference number only, not the student's name or school. Details of entries that are not awarded or commended are deleted 12 months after the competition closes. Winning and commended entries may be published in QHTA's journal and/or website with the student's name and school. Contact qhta@qhta.com.au with any privacy questions.</p>",
+    "privacy_notice": "<p>Most entrants are students under 18, so QHTA collects only the student's name, year level and school — no student contact details. All correspondence goes to the teacher. Entries are seen by QHTA administrators and judges; judges see the entry and its reference number only, not the student's name or school. For entries that are not awarded or commended, the student's details and the entry file are removed 12 months after the competition closes. Winning and commended entries may be published in QHTA's journal and/or website with the student's name and school. Contact qhta@qhta.com.au with any privacy questions.</p>",
     "categories": [
       { "slug": "year-7", "label": "Year 7", "year_levels": ["7"], "word_min": 600, "word_max": 1000, "submission_kind": "upload" },
       { "slug": "year-8", "label": "Year 8", "year_levels": ["8"], "word_min": 600, "word_max": 1000, "submission_kind": "upload" },
@@ -72,7 +72,6 @@
       ]
     },
     "entry_limits": { "per_entrant_per_category": 1, "per_school_per_category": null, "per_entrant_total": null },
-    "award_config": { "coupon_enabled": false, "coupon_product_id": null, "coupon_variation_id": null },
     "word_count_rules": { "include_footnotes": true, "exclude_after_headings": ["Bibliography", "References", "Reference list", "Works cited"] },
     "emails": {
       "submitted": {

@@ -125,7 +125,6 @@ final class Qhta_Competitions_Program_CPT {
 			'anonymise'         => array( 'meta' => '_qc_anonymise', 'kind' => 'scalar' ),
 			'entry_limits'      => array( 'meta' => '_qc_entry_limits', 'kind' => 'json' ),
 			'emails'            => array( 'meta' => '_qc_emails', 'kind' => 'json' ),
-			'award_config'      => array( 'meta' => '_qc_award_config', 'kind' => 'json' ),
 			'retention_months'  => array( 'meta' => '_qc_retention_months', 'kind' => 'scalar' ),
 			'word_count_rules'  => array( 'meta' => '_qc_word_count_rules', 'kind' => 'json' ),
 			'privacy_notice'    => array( 'meta' => '_qc_privacy_notice', 'kind' => 'scalar' ),
@@ -164,11 +163,6 @@ final class Qhta_Competitions_Program_CPT {
 				'per_entrant_total'        => null,
 			),
 			'emails'             => array(),
-			'award_config'       => array(
-				'coupon_enabled'      => false,
-				'coupon_product_id'   => 4311,
-				'coupon_variation_id' => null,
-			),
 			'retention_months'   => 12,
 			'word_count_rules'   => array(
 				'include_footnotes'      => true,
@@ -305,7 +299,6 @@ final class Qhta_Competitions_Program_CPT {
 			'anonymise'          => __( 'Anonymise', 'qhta-competitions' ),
 			'entry_limits'       => __( 'Entry limits', 'qhta-competitions' ),
 			'emails'             => __( 'Emails', 'qhta-competitions' ),
-			'award_config'       => __( 'Award', 'qhta-competitions' ),
 			'retention_months'   => __( 'Retention', 'qhta-competitions' ),
 			'word_count_rules'   => __( 'Word count rules', 'qhta-competitions' ),
 			'privacy_notice'     => __( 'Privacy notice', 'qhta-competitions' ),
@@ -828,25 +821,6 @@ final class Qhta_Competitions_Program_CPT {
 				/* translators: %s: event */
 				$err[] = sprintf( __( '"%s" needs string subject and body.', 'qhta-competitions' ), $event );
 			}
-		}
-		return $v;
-	}
-
-	/**
-	 * @param mixed    $v   Value.
-	 * @param string[] $err Errors.
-	 * @return array
-	 */
-	private static function validate_award_config( $v, &$err ) {
-		if ( ! self::is_object( $v ) ) {
-			$err[] = __( 'must be an object.', 'qhta-competitions' );
-			return array();
-		}
-		$v['coupon_enabled']      = ! empty( $v['coupon_enabled'] );
-		$v['coupon_product_id']   = self::int_or_null( isset( $v['coupon_product_id'] ) ? $v['coupon_product_id'] : null, $err, 'coupon_product_id', 1 );
-		$v['coupon_variation_id'] = self::int_or_null( isset( $v['coupon_variation_id'] ) ? $v['coupon_variation_id'] : null, $err, 'coupon_variation_id', 1 );
-		if ( $v['coupon_enabled'] && null === $v['coupon_product_id'] ) {
-			$err[] = __( 'a product ID is required when the coupon is enabled.', 'qhta-competitions' );
 		}
 		return $v;
 	}

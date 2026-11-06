@@ -41,6 +41,26 @@ final class Qhta_Competitions_Retention {
 		add_action( Qhta_Competitions_Confirm::CRON, array( __CLASS__, 'maybe_run' ) );
 		add_filter( 'wp_privacy_personal_data_exporters', array( __CLASS__, 'register_exporter' ) );
 		add_filter( 'wp_privacy_personal_data_erasers', array( __CLASS__, 'register_eraser' ) );
+		add_action( 'admin_init', array( __CLASS__, 'privacy_policy_content' ) );
+	}
+
+	/**
+	 * Suggested privacy-policy text (Settings → Privacy → Policy Guide). Same text as docs/PRIVACY.md.
+	 */
+	public static function privacy_policy_content() {
+		if ( ! function_exists( 'wp_add_privacy_policy_content' ) ) {
+			return;
+		}
+		$p = function ( $text ) {
+			return '<p>' . esc_html( $text ) . '</p>';
+		};
+		$content  = '<h2>' . esc_html__( 'Competitions, awards and bursaries', 'qhta-competitions' ) . '</h2>';
+		$content .= $p( __( 'When you enter a QHTA competition or apply for a bursary or award online, we collect the details on the form: for example your name, contact details, school, teaching registration number and membership, and your written piece or uploaded entry. For the Historical Writing Competition, entries are submitted by a teacher; we collect the student\'s name, year level and school only, and no student contact details. All correspondence goes to the teacher.', 'qhta-competitions' ) );
+		$content .= $p( __( 'Declarations are signed by typing your name. We record that name with the date, time, IP address and browser, as the record of your signature. If a referee is needed, we email them a single-use link and record their confirmation, name and any comment in the same way.', 'qhta-competitions' ) );
+		$content .= $p( __( 'Your details are seen by QHTA administrators. Judges and selection committees see entries without names or schools wherever possible; an uploaded document may still show whatever it contains. Your referee sees a summary of your application without your contact details. Uploaded files are stored privately and are never at a public web address.', 'qhta-competitions' ) );
+		$content .= $p( __( 'If an entry is awarded or commended, and publication consent was given, QHTA may publish it with the entrant\'s name and school in its journal and/or on its website, and keeps the entry as part of the program\'s history. For all other entries, personal details and uploaded files are removed after the retention period set for each round (12 months after the round closes, unless stated otherwise on the form).', 'qhta-competitions' ) );
+		$content .= $p( __( 'You can ask for a copy of the information we hold about you, or for it to be erased, by emailing qhta@qhta.com.au. Awarded or commended entries that have been published are kept as part of the publication record.', 'qhta-competitions' ) );
+		wp_add_privacy_policy_content( __( 'QHTA Competitions', 'qhta-competitions' ), wp_kses_post( $content ) );
 	}
 
 	/**

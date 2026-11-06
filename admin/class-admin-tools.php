@@ -391,25 +391,6 @@ final class Qhta_Competitions_Admin_Tools {
 		/* translators: %d: count */
 		$add( __( 'Outcome email queue', 'qhta-competitions' ), $q && ! wp_next_scheduled( Qhta_Competitions_Outcomes::BATCH_HOOK ) ? 'warn' : 'ok', $q ? sprintf( __( '%d waiting.', 'qhta-competitions' ), $q ) : __( 'Empty.', 'qhta-competitions' ) );
 
-		// Coupon dependencies, only when a round uses the coupon.
-		foreach ( get_posts( array( 'post_type' => Qhta_Competitions_Program_CPT::POST_TYPE, 'post_status' => array( 'publish', 'private' ), 'posts_per_page' => -1 ) ) as $p ) {
-			$award = Qhta_Competitions_Program_CPT::get_config( $p->ID )['award_config'];
-			if ( empty( $award['coupon_enabled'] ) ) {
-				continue;
-			}
-			$pid = (int) $award['coupon_product_id'];
-			if ( ! class_exists( 'WooCommerce' ) ) {
-				/* translators: %s: round */
-				$add( __( 'Bursary coupon', 'qhta-competitions' ), 'fail', sprintf( __( '%s has the registration coupon on, but WooCommerce is not active.', 'qhta-competitions' ), $p->post_title ) );
-			} elseif ( 'publish' !== get_post_status( $pid ) || 'product' !== get_post_type( $pid ) ) {
-				/* translators: 1: round, 2: product */
-				$add( __( 'Bursary coupon', 'qhta-competitions' ), 'fail', sprintf( __( '%1$s: product %2$d is not a published WooCommerce product.', 'qhta-competitions' ), $p->post_title, $pid ) );
-			} else {
-				/* translators: 1: round, 2: product */
-				$add( __( 'Bursary coupon', 'qhta-competitions' ), 'ok', sprintf( __( '%1$s: coupons will be for "%2$s".', 'qhta-competitions' ), $p->post_title, get_the_title( $pid ) ) );
-			}
-		}
-
 		$add( __( 'PMPro membership check', 'qhta-competitions' ), function_exists( 'pmpro_hasMembershipLevel' ) ? 'ok' : 'info', function_exists( 'pmpro_hasMembershipLevel' ) ? __( 'Available.', 'qhta-competitions' ) : __( 'PMPro not active — membership is checked by hand.', 'qhta-competitions' ) );
 		/* translators: %s: version */
 		$add( __( 'Database', 'qhta-competitions' ), get_option( Qhta_Competitions_Plugin::DB_VERSION_OPTION ) === Qhta_Competitions_Plugin::DB_VERSION ? 'ok' : 'warn', sprintf( __( 'Scores table schema version %s.', 'qhta-competitions' ), (string) get_option( Qhta_Competitions_Plugin::DB_VERSION_OPTION ) ) );
