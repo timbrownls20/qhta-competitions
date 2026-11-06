@@ -9,6 +9,7 @@ emailed PDF forms. A future program (an award, a grant) is a new round, not new 
 - Changes: [docs/CHANGELOG.md](docs/CHANGELOG.md)
 - Deploying and the live smoke test: [docs/DEPLOY.md](docs/DEPLOY.md)
 - Privacy text: [docs/PRIVACY.md](docs/PRIVACY.md)
+- QHTA Health canaries: [docs/HEALTHCHECK.md](docs/HEALTHCHECK.md)
 
 ## Status
 
@@ -43,11 +44,21 @@ lists the checks that can only be done on a real server and the open decisions
    - *ECC Bursary 2027* — the real first round;
    - *Historical Writing Competition 2026 (demo)* — for showing the committee;
    - or *Add blank round*.
-2. Edit the round. Simple settings (dates, grace, retention, limits,
-   confirmer) are form fields. Categories, form fields, declarations,
-   eligibility rules, rubric and email templates are validated JSON, with a
-   reference above each box. Invalid JSON is never saved and never lost — it
-   comes back in the box with the error.
+2. Edit the round. Everything is point-and-click:
+   - **Form fields:** *Add a question*, pick its type (short answer, dropdown,
+     tick box, file upload…), and click a question to edit its wording,
+     choices, *Must be answered*, *Personal information* (hidden from judges,
+     removed after retention) and *Show only when…*. Drag ☰ or use the arrows
+     to reorder; a removed question can be undone.
+   - **Categories, Declarations, Judging rubric:** one row per item, with
+     *Add* buttons.
+   - **Eligibility rules:** tick boxes that must be ticked, the membership
+     check and the different-referee check, each set to *stop the entry* or
+     *accept it, but flag it ⚑*.
+   - **Email templates:** one card per email, with *Send this email* and
+     *Insert* buttons for the reference, names and so on.
+   - Each box keeps *Advanced: edit as JSON* for power users. Invalid JSON
+     is never saved and never lost — it comes back in the box with the error.
 3. **Publish.** The round gets a feature flag `comp-{slug}` (see its *Feature
    flag* box), starting in **preview**. The key never changes, even if the
    slug does.

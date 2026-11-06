@@ -1,5 +1,54 @@
 # Changelog
 
+## 1.1.0 — visual round editor (not yet deployed)
+
+### Added
+- **Visual editor** for a round's structured settings
+  (`assets/js/admin-editor.js`, plain ES5, loaded on the round edit screen
+  only), so rounds can be set up without editing JSON:
+  - **Form fields:** a card per question with type, wording, help text,
+    choices (one per line), *Must be answered*, *Personal information* /
+    *Judges can see the answer*, *This answer is* (entrant name / school /
+    submitter email), *Fill in for logged-in members*, the admin "verified"
+    tick, and *Show only when…* / *Different wording when…* built from the
+    other questions' answers. Add, drag or arrow to reorder, remove with undo.
+    One card open at a time.
+  - **Categories:** a table of name, *Upload a file* / *Type it into the
+    form* / *Either*, min–max words, and year-level ticks taken from the
+    form's Year level question.
+  - **Declarations:** text, *Must be ticked*, and *This is the publication
+    consent*.
+  - **Judging rubric:** criterion, out of, weight.
+  - **Eligibility rules:** must-tick rules (tick box, stop or flag, message),
+    the QHTA membership check and the different-referee check. The rules the
+    form always enforces (closing date, year level, word limits, entry
+    limits) are explained rather than edited, and kept as they are.
+  - **Email templates:** a card per email saying who it goes to and when,
+    *Send this email*, subject, message and *Insert* buttons for the
+    reference, round, dates, links and every question.
+  - Internal names (keys) are made from the wording for new items and never
+    change for existing ones, so earlier entries, emails and rules still match.
+- **Confirmer** box: the referee's email and name are chosen from the form's
+  questions instead of typed as keys, and the referee settings hide when
+  confirmation is *None*.
+- **QHTA Health canaries** (`includes/class-healthcheck.php`, registered on
+  qhta-healthcheck's `qhta_healthcheck_checks` filter; does nothing without
+  it). 14 read-only checks: wordpress-feature-flags functions, the
+  `competitions` kill switch, round flags registered, the form shortcode, the
+  protected uploads folder (files present, and refused over HTTP on the daily
+  remote pass), `qc_cron` scheduled and running, the scores table and schema
+  version, stuck outcome emails, the judge wp-admin filters,
+  `WPFF_PREVIEW_TOKEN`, the Brisbane time zone, and PMPro's membership
+  function. Listed in `docs/HEALTHCHECK.md`, with the rule that a new external
+  dependency gets its canary in the same change.
+
+### Changed
+- The JSON for each section moved under *Advanced: edit as JSON* in its box.
+  It is still what's saved: the editor reads and writes it, so validation,
+  presets and the save path are unchanged, and keys the editor doesn't know
+  about are kept. Invalid JSON is still never saved and comes back with the
+  error, with the Advanced section open.
+
 ## 1.0.1 — coupon removed (not yet deployed)
 
 ### Removed

@@ -64,6 +64,7 @@ final class Qhta_Competitions_Plugin {
 		require_once QC_DIR . 'includes/class-outcomes.php';
 		require_once QC_DIR . 'includes/class-export.php';
 		require_once QC_DIR . 'includes/class-retention.php';
+		require_once QC_DIR . 'includes/class-healthcheck.php';
 
 		Qhta_Competitions_Flags::init();
 		Qhta_Competitions_Program_CPT::init();
@@ -77,6 +78,7 @@ final class Qhta_Competitions_Plugin {
 		Qhta_Competitions_Outcomes::init();
 		Qhta_Competitions_Export::init();
 		Qhta_Competitions_Retention::init();
+		Qhta_Competitions_Healthcheck::init();
 		add_action( 'qc_cron', array( __CLASS__, 'cron_heartbeat' ), 1 );
 
 		if ( is_admin() ) {

@@ -29,7 +29,7 @@ for required in \
 	"includes/class-plugin.php" "includes/class-flags.php" "includes/class-form-handler.php" \
 	"admin/class-admin-programs.php" \
 	"templates/form.php" "templates/email.php" "templates/confirm-page.php" \
-	"assets/js/form.js" "assets/css/form.css" "assets/css/admin.css" \
+	"assets/js/form.js" "assets/js/admin-editor.js" "assets/css/form.css" "assets/css/admin.css" \
 	"presets/ecc-bursary-2027.json" "presets/writing-competition-2026-demo.json"
 do
 	if [[ ! -e "$PLUGIN_DIR/$required" ]]; then
@@ -54,6 +54,7 @@ fi
 
 if command -v node >/dev/null 2>&1; then
 	node --check "$PLUGIN_DIR/assets/js/form.js"
+	node --check "$PLUGIN_DIR/assets/js/admin-editor.js"
 fi
 
 rm -f "$ZIP_PATH"

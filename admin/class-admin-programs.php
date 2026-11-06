@@ -2,10 +2,12 @@
 /**
  * Program round admin: edit-screen meta boxes, save, "New from preset", list columns.
  *
- * Simple settings are form inputs; structured config (categories, fields,
- * declarations, eligibility, rubric, emails) is edited as validated JSON.
- * Invalid JSON is never saved and never lost: the rejected text is put back
- * in the box with the error on the next screen load.
+ * Simple settings are form inputs. Structured config (categories, fields,
+ * declarations, eligibility, rubric, emails) is edited with the visual editor
+ * in assets/js/admin-editor.js, which reads and writes the same validated
+ * JSON in qc_json[section]; the raw JSON stays under "Advanced". Invalid JSON
+ * is never saved and never lost: the rejected text is put back in the box
+ * with the error on the next screen load.
  *
  * @package Qhta_Competitions
  */
@@ -62,9 +64,247 @@ final class Qhta_Competitions_Admin_Programs {
 	 * Admin CSS on our screens only.
 	 */
 	public static function assets() {
-		if ( self::is_our_screen() ) {
-			wp_enqueue_style( 'qc-admin', QC_URL . 'assets/css/admin.css', array(), QC_VERSION );
+		if ( ! self::is_our_screen() ) {
+			return;
 		}
+		wp_enqueue_style( 'qc-admin', QC_URL . 'assets/css/admin.css', array(), QC_VERSION );
+		$screen = get_current_screen();
+		if ( 'post' === $screen->base ) {
+			wp_enqueue_script( 'qc-admin-editor', QC_URL . 'assets/js/admin-editor.js', array( 'jquery', 'jquery-ui-sortable' ), QC_VERSION, true );
+			wp_localize_script( 'qc-admin-editor', 'qcEditor', self::editor_data() );
+		}
+	}
+
+	/**
+	 * Labels and lists for the visual editor.
+	 *
+	 * @return array
+	 */
+	private static function editor_data() {
+		global $post;
+		$fields = $post instanceof WP_Post ? Qhta_Competitions_Program_CPT::get_config( $post->ID )['fields'] : array();
+		$events = array(
+			'submitted'            => array(
+				'to'    => __( 'To the submitter', 'qhta-competitions' ),
+				'label' => __( 'Entry received', 'qhta-competitions' ),
+				'note'  => __( 'Sent as soon as an entry is submitted, with its reference.', 'qhta-competitions' ),
+			),
+			'admin_new'            => array(
+				'to'    => __( 'To admins', 'qhta-competitions' ),
+				'label' => __( 'New entry alert', 'qhta-competitions' ),
+				'note'  => __( 'Sent to the site admin email for every new entry.', 'qhta-competitions' ),
+			),
+			'confirm_request'      => array(
+				'to'    => __( 'To the referee', 'qhta-competitions' ),
+				'label' => __( 'Please confirm this application', 'qhta-competitions' ),
+				'note'  => __( 'Only used when a referee confirms (see Confirmer). Must include the Confirmation link.', 'qhta-competitions' ),
+			),
+			'reminder_confirm'     => array(
+				'to'    => __( 'To the referee', 'qhta-competitions' ),
+				'label' => __( 'Reminder to confirm', 'qhta-competitions' ),
+				'note'  => __( 'Sent once, 48 hours before closing, if the referee hasn\'t confirmed yet. Must include the Confirmation link.', 'qhta-competitions' ),
+			),
+			'confirmed'            => array(
+				'to'    => __( 'To the submitter', 'qhta-competitions' ),
+				'label' => __( 'Your referee has confirmed', 'qhta-competitions' ),
+				'note'  => __( 'Sent when the referee confirms.', 'qhta-competitions' ),
+			),
+			'outcome_awarded'      => array(
+				'to'    => __( 'To the submitter', 'qhta-competitions' ),
+				'label' => __( 'Outcome: awarded', 'qhta-competitions' ),
+				'note'  => __( 'Sent from Submissions → Notify outcome, after you\'ve previewed it.', 'qhta-competitions' ),
+			),
+			'outcome_commended'    => array(
+				'to'    => __( 'To the submitter', 'qhta-competitions' ),
+				'label' => __( 'Outcome: commended', 'qhta-competitions' ),
+				'note'  => __( 'Sent from Submissions → Notify outcome, after you\'ve previewed it.', 'qhta-competitions' ),
+			),
+			'outcome_unsuccessful' => array(
+				'to'    => __( 'To the submitter', 'qhta-competitions' ),
+				'label' => __( 'Outcome: not successful', 'qhta-competitions' ),
+				'note'  => __( 'Sent from Submissions → Notify outcome, after you\'ve previewed it.', 'qhta-competitions' ),
+			),
+		);
+		$confirm_events = array( 'confirm_request', 'reminder_confirm' );
+		return array(
+			'fields'          => $fields,
+			'fieldTypes'      => array(
+				'text'             => __( 'Short answer', 'qhta-competitions' ),
+				'textarea'         => __( 'Paragraph', 'qhta-competitions' ),
+				'email'            => __( 'Email address', 'qhta-competitions' ),
+				'tel'              => __( 'Phone number', 'qhta-competitions' ),
+				'address'          => __( 'Address', 'qhta-competitions' ),
+				'select'           => __( 'Dropdown', 'qhta-competitions' ),
+				'radio'            => __( 'Multiple choice', 'qhta-competitions' ),
+				'checkbox'         => __( 'Tick box', 'qhta-competitions' ),
+				'year_level'       => __( 'Year level', 'qhta-competitions' ),
+				'richtext_limited' => __( 'Written piece (typed in)', 'qhta-competitions' ),
+				'file'             => __( 'File upload', 'qhta-competitions' ),
+				'heading'          => __( 'Section heading', 'qhta-competitions' ),
+				'help'             => __( 'Information text', 'qhta-competitions' ),
+			),
+			'typeHelp'        => array(
+				'richtext_limited' => __( 'The entrant types their piece into the form. Its word limit comes from the category.', 'qhta-competitions' ),
+				'file'             => __( 'Accepts .docx and .pdf only. Word documents are word-counted automatically.', 'qhta-competitions' ),
+				'year_level'       => __( 'Checked against the category\'s year levels.', 'qhta-competitions' ),
+				'checkbox'         => __( 'A single tick box. To make ticking it a condition of entry, add it under Eligibility rules.', 'qhta-competitions' ),
+				'help'             => __( 'A paragraph of guidance on the form. Nothing to fill in.', 'qhta-competitions' ),
+				'heading'          => __( 'Starts a new section of the form. Nothing to fill in.', 'qhta-competitions' ),
+			),
+			'roles'           => array(
+				'entrant_name'    => __( 'The entrant\'s name — used in lists and entry limits', 'qhta-competitions' ),
+				'school'          => __( 'The school — used in entry limits and judge conflicts', 'qhta-competitions' ),
+				'submitter_email' => __( 'The submitter\'s email — confirmation emails go here', 'qhta-competitions' ),
+			),
+			'prefills'        => array(
+				'name'    => __( 'Their name', 'qhta-competitions' ),
+				'email'   => __( 'Their email', 'qhta-competitions' ),
+				'phone'   => __( 'Their phone (from membership details)', 'qhta-competitions' ),
+				'address' => __( 'Their address (from membership details)', 'qhta-competitions' ),
+			),
+			'submissionKinds' => array(
+				'upload' => __( 'Upload a file', 'qhta-competitions' ),
+				'inline' => __( 'Type it into the form', 'qhta-competitions' ),
+				'both'   => __( 'Either', 'qhta-competitions' ),
+			),
+			'modes'           => array(
+				'block' => __( 'stop the entry', 'qhta-competitions' ),
+				'flag'  => __( 'accept it, but flag it ⚑ for an admin', 'qhta-competitions' ),
+			),
+			'defaultModes'    => Qhta_Competitions_Eligibility::DEFAULT_MODES,
+			'events'          => $events,
+			'tokens'          => array(
+				array( 'token' => 'ref', 'label' => __( 'Reference', 'qhta-competitions' ) ),
+				array( 'token' => 'program', 'label' => __( 'Round name', 'qhta-competitions' ) ),
+				array( 'token' => 'category', 'label' => __( 'Category', 'qhta-competitions' ) ),
+				array( 'token' => 'closes_at', 'label' => __( 'Closing date', 'qhta-competitions' ) ),
+				array( 'token' => 'status', 'label' => __( 'Status', 'qhta-competitions' ) ),
+				array( 'token' => 'confirm_url', 'label' => __( 'Confirmation link', 'qhta-competitions' ), 'events' => $confirm_events ),
+				array( 'token' => 'confirm_expires', 'label' => __( 'Link expiry date', 'qhta-competitions' ), 'events' => $confirm_events ),
+				array( 'token' => 'admin_url', 'label' => __( 'Admin link to the entry', 'qhta-competitions' ), 'events' => array( 'admin_new' ) ),
+				array( 'token' => 'flags', 'label' => __( 'Eligibility flags', 'qhta-competitions' ), 'events' => array( 'admin_new' ) ),
+				array( 'token' => 'registration_instructions', 'label' => __( 'Registration instructions', 'qhta-competitions' ), 'events' => array( 'outcome_awarded' ) ),
+			),
+			'i18n'            => array(
+				/* translators: %1: item name */
+				'move_up'              => __( 'Move %1 up', 'qhta-competitions' ),
+				/* translators: %1: item name */
+				'move_down'            => __( 'Move %1 down', 'qhta-competitions' ),
+				/* translators: %1: item name */
+				'remove'               => __( 'Remove %1', 'qhta-competitions' ),
+				'removed'              => __( 'Removed.', 'qhta-competitions' ),
+				'undo'                 => __( 'Undo', 'qhta-competitions' ),
+				'drag'                 => __( 'Drag to reorder', 'qhta-competitions' ),
+				/* translators: %1: stored value */
+				'missing_option'       => __( '%1 (no longer in the form)', 'qhta-competitions' ),
+				/* translators: %1: JSON error */
+				'json_broken'          => __( 'The JSON under Advanced has an error, so the editor can\'t show it: %1. Fix it there, or reload the page to discard your changes.', 'qhta-competitions' ),
+				'untitled'             => __( '(no wording yet)', 'qhta-competitions' ),
+				'field'                => __( 'question', 'qhta-competitions' ),
+				'no_fields'            => __( 'No questions yet.', 'qhta-competitions' ),
+				'add_field'            => __( 'Add a question', 'qhta-competitions' ),
+				'new_field_type'       => __( 'Type of question to add', 'qhta-competitions' ),
+				'tag_required'         => __( 'Required', 'qhta-competitions' ),
+				'tag_personal'         => __( 'Personal', 'qhta-competitions' ),
+				'tag_hidden_judges'    => __( 'Hidden from judges', 'qhta-competitions' ),
+				'tag_conditional'      => __( 'Conditional', 'qhta-competitions' ),
+				'type'                 => __( 'Type', 'qhta-competitions' ),
+				'question'             => __( 'Question', 'qhta-competitions' ),
+				'heading_text'         => __( 'Heading', 'qhta-competitions' ),
+				'info_text'            => __( 'Text', 'qhta-competitions' ),
+				'info_text_help'       => __( 'Basic HTML allowed, e.g. <strong>bold</strong> or a link.', 'qhta-competitions' ),
+				'help_text'            => __( 'Help text', 'qhta-competitions' ),
+				'help_text_help'       => __( 'Optional. Shown under the question.', 'qhta-competitions' ),
+				'choices'              => __( 'Choices', 'qhta-competitions' ),
+				'year_levels'          => __( 'Year levels', 'qhta-competitions' ),
+				'choices_help'         => __( 'One per line, in the order shown.', 'qhta-competitions' ),
+				'answer'               => __( 'Answer', 'qhta-competitions' ),
+				'required'             => __( 'Must be answered', 'qhta-competitions' ),
+				'privacy'              => __( 'Privacy', 'qhta-competitions' ),
+				'personal'             => __( 'Personal information', 'qhta-competitions' ),
+				'personal_help'        => __( 'Personal information is never shown to judges, is left out of the standard export, and is removed after the retention period.', 'qhta-competitions' ),
+				'judges_see'           => __( 'Judges can see the answer', 'qhta-competitions' ),
+				'role'                 => __( 'This answer is', 'qhta-competitions' ),
+				'role_none'            => __( '— nothing special —', 'qhta-competitions' ),
+				'role_help'            => __( 'Use each of these once per form.', 'qhta-competitions' ),
+				'prefill'              => __( 'Fill in for logged-in members', 'qhta-competitions' ),
+				'prefill_none'         => __( '— don\'t fill in —', 'qhta-competitions' ),
+				'prefill_help'         => __( 'They can still change it.', 'qhta-competitions' ),
+				'admin_check'          => __( 'Admin check', 'qhta-competitions' ),
+				'admin_verify'         => __( 'Add a "verified" tick for admins on each entry (e.g. a registration number)', 'qhta-competitions' ),
+				'show_question'        => __( 'Show this question', 'qhta-competitions' ),
+				'show_always'          => __( 'Always', 'qhta-competitions' ),
+				'show_when'            => __( 'Only when…', 'qhta-competitions' ),
+				'wording'              => __( 'Different wording', 'qhta-competitions' ),
+				'label_always'         => __( 'Never', 'qhta-competitions' ),
+				'label_when'           => __( 'When…', 'qhta-competitions' ),
+				'label_alt'            => __( 'use this wording instead:', 'qhta-competitions' ),
+				'cond_field'           => __( 'Question', 'qhta-competitions' ),
+				'cond_value'           => __( 'Answer', 'qhta-competitions' ),
+				'is'                   => __( 'is', 'qhta-competitions' ),
+				'is_ticked'            => __( 'is ticked', 'qhta-competitions' ),
+				'is_exactly'           => __( 'is exactly', 'qhta-competitions' ),
+				'key'                  => __( 'Internal name:', 'qhta-competitions' ),
+				'key_new'              => __( 'set from the wording; fixed once the round is updated.', 'qhta-competitions' ),
+				'key_fixed'            => __( 'stays the same if you change the wording, so earlier entries still match.', 'qhta-competitions' ),
+				'category'             => __( 'category', 'qhta-competitions' ),
+				'cat_name'             => __( 'Category', 'qhta-competitions' ),
+				'cat_entry'            => __( 'Entry is', 'qhta-competitions' ),
+				'cat_words'            => __( 'Words (min – max)', 'qhta-competitions' ),
+				'cat_years'            => __( 'Year levels', 'qhta-competitions' ),
+				'cat_years_help'       => __( 'Tick the year levels allowed in each category. None ticked = any year level.', 'qhta-competitions' ),
+				'cat_years_help_text'  => __( 'Year levels: separate with commas; blank = any. Add a "Year level" question to the form to get tick boxes here.', 'qhta-competitions' ),
+				'any'                  => __( 'any', 'qhta-competitions' ),
+				'min_words'            => __( 'Minimum words', 'qhta-competitions' ),
+				'max_words'            => __( 'Maximum words', 'qhta-competitions' ),
+				'no_categories'        => __( 'No categories yet. Every round needs at least one.', 'qhta-competitions' ),
+				'add_category'         => __( 'Add a category', 'qhta-competitions' ),
+				/* translators: %1: number */
+				'declaration_n'        => __( 'Declaration %1', 'qhta-competitions' ),
+				'no_declarations'      => __( 'No declarations.', 'qhta-competitions' ),
+				'add_declaration'      => __( 'Add a declaration', 'qhta-competitions' ),
+				'decl_required'        => __( 'Must be ticked', 'qhta-competitions' ),
+				'decl_consent'         => __( 'This is the publication consent (listed in the consent register)', 'qhta-competitions' ),
+				'criterion'            => __( 'Criterion', 'qhta-competitions' ),
+				'max_score'            => __( 'Out of', 'qhta-competitions' ),
+				'weight'               => __( 'Weight', 'qhta-competitions' ),
+				'no_criteria'          => __( 'No criteria yet. Judges need at least one to score.', 'qhta-competitions' ),
+				'add_criterion'        => __( 'Add a criterion', 'qhta-competitions' ),
+				'rubric_help'          => __( 'Weight sets how much a criterion counts: weight 2 counts twice as much as weight 1. Each judge\'s score is a percentage; the result is the average across judges.', 'qhta-competitions' ),
+				'elig_always'          => __( 'Always checked, with no setting needed: the closing date, that the year level suits the category, word limits (typed-in pieces over the limit are stopped; uploaded files are flagged) and the entry limits set below.', 'qhta-competitions' ),
+				'elig_must_tick'       => __( 'Tick boxes that must be ticked', 'qhta-competitions' ),
+				'elig_none'            => __( 'None.', 'qhta-competitions' ),
+				'elig_tick_field'      => __( 'Tick box', 'qhta-competitions' ),
+				'elig_if_not_ticked_1' => __( 'If', 'qhta-competitions' ),
+				'elig_if_not_ticked_2' => __( 'isn\'t ticked,', 'qhta-competitions' ),
+				'elig_mode'            => __( 'What happens', 'qhta-competitions' ),
+				'elig_message'         => __( 'Message to show:', 'qhta-competitions' ),
+				'elig_message_default' => __( 'You must tick this to be eligible.', 'qhta-competitions' ),
+				'elig_remove'          => __( 'Remove this rule', 'qhta-competitions' ),
+				'elig_add_tick'        => __( 'Add a must-tick rule', 'qhta-competitions' ),
+				'elig_no_ticks'        => __( 'Add a Tick box question to the form to use this.', 'qhta-competitions' ),
+				'elig_membership'      => __( 'QHTA membership', 'qhta-competitions' ),
+				'elig_membership_on'   => __( 'Check the applicant is a QHTA member', 'qhta-competitions' ),
+				'elig_membership_q'    => __( 'Membership question on the form:', 'qhta-competitions' ),
+				'elig_membership_no_q' => __( '— none —', 'qhta-competitions' ),
+				'elig_membership_mode' => __( 'If they aren\'t a member,', 'qhta-competitions' ),
+				'elig_membership_help' => __( 'Logged-in applicants are checked against their membership automatically. Anyone else, or anyone answering "institutional", shows as "?" for an admin to check.', 'qhta-competitions' ),
+				'elig_referee'         => __( 'Referee', 'qhta-competitions' ),
+				'elig_referee_on'      => __( 'The referee must be someone other than the applicant (different email)', 'qhta-competitions' ),
+				'elig_referee_mode'    => __( 'If it\'s the same email,', 'qhta-competitions' ),
+				/* translators: %1: count */
+				'elig_other'           => __( '%1 other rule(s) are kept as they are; see Advanced.', 'qhta-competitions' ),
+				'emails_help'          => __( 'Click an email to edit it. Use the Insert buttons to add details such as the reference or the person\'s name; they\'re filled in when the email is sent.', 'qhta-competitions' ),
+				'email_on'             => __( 'Sent', 'qhta-competitions' ),
+				'email_off'            => __( 'Not sent', 'qhta-competitions' ),
+				'email_send'           => __( 'Send this email', 'qhta-competitions' ),
+				'email_subject'        => __( 'Subject', 'qhta-competitions' ),
+				'email_body'           => __( 'Message', 'qhta-competitions' ),
+				'email_body_help'      => __( 'Plain text; blank lines start a new paragraph.', 'qhta-competitions' ),
+				'insert'               => __( 'Insert:', 'qhta-competitions' ),
+				'choose_field'         => __( '— choose a question —', 'qhta-competitions' ),
+			),
+		);
 	}
 
 	/* ---------------------------------------------------------------------
@@ -364,7 +604,32 @@ final class Qhta_Competitions_Admin_Programs {
 	}
 
 	/**
-	 * Generic JSON editor box.
+	 * One-line intro shown above each visual editor.
+	 *
+	 * @param string $section Section.
+	 * @return string
+	 */
+	private static function section_intro( $section ) {
+		switch ( $section ) {
+			case 'categories':
+				return __( 'Entrants choose one category. Each sets the word limits and whether the entry is uploaded or typed in.', 'qhta-competitions' );
+			case 'fields':
+				return __( 'The questions on the form, in order. Click a question to edit it, drag ☰ (or use the arrows) to reorder.', 'qhta-competitions' );
+			case 'declarations':
+				return __( 'Statements the submitter ticks and signs by typing their name. The exact wording is stored with each entry.', 'qhta-competitions' );
+			case 'eligibility':
+				return __( 'Who may enter. Each rule either stops the entry, or accepts it and flags it ⚑ for an admin to check.', 'qhta-competitions' );
+			case 'rubric':
+				return __( 'What judges score each entry on.', 'qhta-competitions' );
+			case 'emails':
+				return '';
+		}
+		return '';
+	}
+
+	/**
+	 * Visual editor box. The editor (assets/js/admin-editor.js) reads and
+	 * writes the JSON textarea, which stays under "Advanced" and is what's saved.
 	 *
 	 * @param WP_Post $post Program.
 	 * @param array   $box  Meta box args.
@@ -375,21 +640,31 @@ final class Qhta_Competitions_Admin_Programs {
 		$rejected = self::rejected( $post->ID );
 		$value    = Qhta_Competitions_Util::json_pretty( $config[ $section ] );
 		$class    = 'large-text code qc-json';
+		$error    = isset( $rejected[ $section ] );
 
-		if ( isset( $rejected[ $section ] ) ) {
+		if ( $error ) {
 			$value  = $rejected[ $section ]['raw'];
 			$class .= ' qc-json--error';
 			echo '<div class="notice notice-error inline"><p>' . esc_html__( 'NOT SAVED — fix and update again:', 'qhta-competitions' ) . ' ' . esc_html( $rejected[ $section ]['error'] ) . '</p></div>';
 		}
-		$rows = min( 40, max( 6, substr_count( $value, "\n" ) + 2 ) );
+		$rows  = min( 40, max( 6, substr_count( $value, "\n" ) + 2 ) );
+		$intro = self::section_intro( $section );
+		echo '<div class="qcv" data-section="' . esc_attr( $section ) . '">';
+		if ( '' !== $intro ) {
+			echo '<p class="description qcv-intro">' . esc_html( $intro ) . '</p>';
+		}
+		echo '<div class="qcv-ui"><p class="description">' . esc_html__( 'Loading the editor… If it doesn\'t appear, edit the JSON under Advanced.', 'qhta-competitions' ) . '</p></div>';
+		echo '<details class="qcv-advanced"' . ( $error ? ' open' : '' ) . '><summary>' . esc_html__( 'Advanced: edit as JSON', 'qhta-competitions' ) . '</summary>';
 		echo '<p class="description">' . esc_html( self::json_help( $section ) ) . '</p>';
 		printf(
-			'<textarea name="qc_json[%1$s]" class="%2$s" rows="%3$d" spellcheck="false">%4$s</textarea>',
+			'<textarea name="qc_json[%1$s]" class="%2$s" rows="%3$d" spellcheck="false" aria-label="%4$s">%5$s</textarea>',
 			esc_attr( $section ),
 			esc_attr( $class ),
 			(int) $rows,
+			esc_attr( Qhta_Competitions_Program_CPT::section_label( $section ) . ' (JSON)' ),
 			esc_textarea( $value )
 		);
+		echo '</details></div>';
 	}
 
 	/**
@@ -423,24 +698,54 @@ final class Qhta_Competitions_Admin_Programs {
 					<option value="referee" <?php selected( $get( 'role' ), 'referee' ); ?>><?php esc_html_e( 'Referee confirms by emailed link', 'qhta-competitions' ); ?></option>
 				</select></td>
 			</tr>
-			<tr>
+			<tr class="qc-conf-detail">
 				<th><label for="qc_conf_label"><?php esc_html_e( 'Label', 'qhta-competitions' ); ?></label></th>
 				<td><input type="text" id="qc_conf_label" name="qc_confirmer[label]" value="<?php echo esc_attr( $get( 'label' ) ); ?>" class="regular-text"></td>
 			</tr>
-			<tr>
-				<th><label for="qc_conf_email"><?php esc_html_e( 'Email field key', 'qhta-competitions' ); ?></label></th>
-				<td><input type="text" id="qc_conf_email" name="qc_confirmer[email_field]" value="<?php echo esc_attr( $get( 'email_field' ) ); ?>" class="regular-text code"></td>
+			<tr class="qc-conf-detail">
+				<th><label for="qc_conf_email"><?php esc_html_e( 'Referee\'s email question', 'qhta-competitions' ); ?></label></th>
+				<td><?php self::field_picker( 'qc_conf_email', 'qc_confirmer[email_field]', $c['fields'], array( 'email' ), $get( 'email_field' ) ); ?>
+					<p class="description"><?php esc_html_e( 'The confirmation link is emailed to this address.', 'qhta-competitions' ); ?></p></td>
 			</tr>
-			<tr>
-				<th><label for="qc_conf_name"><?php esc_html_e( 'Name field key', 'qhta-competitions' ); ?></label></th>
-				<td><input type="text" id="qc_conf_name" name="qc_confirmer[name_field]" value="<?php echo esc_attr( $get( 'name_field' ) ); ?>" class="regular-text code"></td>
+			<tr class="qc-conf-detail">
+				<th><label for="qc_conf_name"><?php esc_html_e( 'Referee\'s name question', 'qhta-competitions' ); ?></label></th>
+				<td><?php self::field_picker( 'qc_conf_name', 'qc_confirmer[name_field]', $c['fields'], array( 'text' ), $get( 'name_field' ) ); ?></td>
 			</tr>
-			<tr>
+			<tr class="qc-conf-detail">
 				<th><label for="qc_conf_decl"><?php esc_html_e( 'Confirmer declaration', 'qhta-competitions' ); ?></label></th>
 				<td><textarea id="qc_conf_decl" name="qc_confirmer[declaration]" class="large-text" rows="3"><?php echo esc_textarea( $get( 'declaration' ) ); ?></textarea></td>
 			</tr>
 		</table>
 		<?php
+	}
+
+	/**
+	 * A dropdown of form fields of the given types. The visual editor refreshes
+	 * it when questions change.
+	 *
+	 * @param string   $id      Element id.
+	 * @param string   $name    Input name.
+	 * @param array    $fields  Form fields.
+	 * @param string[] $types   Allowed field types.
+	 * @param string   $current Selected key.
+	 */
+	private static function field_picker( $id, $name, $fields, $types, $current ) {
+		echo '<select id="' . esc_attr( $id ) . '" name="' . esc_attr( $name ) . '">';
+		echo '<option value="">' . esc_html__( '— choose a question —', 'qhta-competitions' ) . '</option>';
+		$found = '' === $current;
+		foreach ( (array) $fields as $f ) {
+			if ( ! is_array( $f ) || empty( $f['key'] ) || ! in_array( isset( $f['type'] ) ? $f['type'] : '', $types, true ) ) {
+				continue;
+			}
+			$found = $found || $f['key'] === $current;
+			$label = isset( $f['label'] ) && '' !== $f['label'] ? $f['label'] : $f['key'];
+			echo '<option value="' . esc_attr( $f['key'] ) . '"' . selected( $current, $f['key'], false ) . '>' . esc_html( $label ) . '</option>';
+		}
+		if ( ! $found ) {
+			/* translators: %s: stored field key */
+			echo '<option value="' . esc_attr( $current ) . '" selected>' . esc_html( sprintf( __( '%s (no longer in the form)', 'qhta-competitions' ), $current ) ) . '</option>';
+		}
+		echo '</select>';
 	}
 
 	/**
