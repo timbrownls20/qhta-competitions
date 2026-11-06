@@ -9,11 +9,11 @@ Full spec: [docs/SPEC.md](docs/SPEC.md). Changes: [docs/CHANGELOG.md](docs/CHANG
 
 ## Status
 
-**M3 done** — referee confirmation by emailed link, reminders, eligibility
-rules, membership check and entry limits, on top of M2 (public form, uploads,
-word count, emails, flag gating, test entries) and M1 (CPTs, admin UI,
-presets, flags). Next: M4 judging; M5 outcomes, coupon, exports, retention,
-Health panel. See spec §8.
+**M4 done** — judges, panels, anonymised judge dashboard, scoring and ranked
+results, on top of M3 (referee confirmation, eligibility, entry limits,
+reminders), M2 (public form, uploads, word count, emails, flags, test entries)
+and M1. Next: M5 outcome emails, bursary coupon, exports, retention, Health
+panel. See spec §8.
 
 ## Requirements
 
@@ -85,6 +85,24 @@ shows as ✓/✗/? in the **Member?** column and can be set by hand in the
 submission's *Admin checks* box, along with "verified" ticks for fields
 marked `"admin_verify": true` (e.g. the QCT number).
 
+### Judging
+
+1. **Competitions → Judges** — add judges by username or email (they need a
+   site account). Their own role and membership aren't changed. Set each
+   judge's school: entries from that school are hidden from them.
+2. On each round, tick judges per category in the **Judging panel** box.
+3. When entries are ready, select them in **Submissions** and use **Send to
+   judging**.
+4. Judges log in and land on **Judging**: reference codes only (when the round
+   is anonymised), the entry, and a rubric form.
+5. **Competitions → Results** — ranked per category with each judge's %, the
+   mean, and a ⚠ where judges disagree by more than the round's spread
+   setting. Select entries to shortlist, then award / commend / mark
+   unsuccessful.
+
+Judge % = Σ(score ÷ max × weight) ÷ Σ weight × 100 (once every criterion is
+scored); mean = average of judges' %s; equal means share a rank.
+
 ### Email
 
 Templates are per round (Email templates box). HTML uses
@@ -151,6 +169,12 @@ registered with wpff with the right defaults and owner.
 PMPro or a stub `pmpro_hasMembershipLevel()`) covers the referee link end to
 end, expiry, reuse, re-send, manual confirmation, reminders, membership
 detection, eligibility flags/blocks and entry limits.
+
+`m4-http-smoke.py` covers adding/removing the judge role (other roles and
+membership kept), panels, the bulk send-to-judging, judge login landing, the
+anonymised dashboard, access refusals (other category, test entry, conflict of
+interest, ID-tampered downloads, admin screens), scoring through the judge
+screens, and results against `fixtures/judging-expected.json`.
 
 `m2-http-smoke.py` drives the real site: the flag matrix (wpff inactive /
 `competitions` off / round off / preview as admin, secret link and logged out /

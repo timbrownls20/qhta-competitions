@@ -25,3 +25,14 @@
 .qc-ref { font-size: 16px; }
 .qc-member { font-size: 15px; font-weight: 700; }
 .qc-confirm-actions form { margin: 12px 0; }
+.qc-inline-form { margin: 12px 0 16px; }
+.qc-progress { background: #e2e4e7; border-radius: 6px; height: 10px; max-width: 420px; overflow: hidden; }
+.qc-progress span { display: block; height: 100%; background: #1d3461; }
+.qc-cat { margin-bottom: 24px; }
+.qc-judge-entry { background: #fff; border: 1px solid #dcdcde; padding: 12px 20px; max-width: 900px; }
+.qc-judge-piece { font-size: 15px; }
+.qc-rubric input[type=number] { width: 70px; }
+.qc-results .qc-rank { font-weight: 700; font-size: 15px; }
+.qc-warn-row td { background: #fff8e5; }
+.qc-panel td, .qc-panel th { text-align: center; }
+.qc-panel td:first-child { text-align: left; }

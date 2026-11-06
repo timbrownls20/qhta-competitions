@@ -311,6 +311,10 @@ final class Qhta_Competitions_Admin_Programs {
 				<td><label><input type="checkbox" name="qc[anonymise]" value="1" <?php checked( $c['anonymise'] ); ?>> <?php esc_html_e( 'Judges see reference codes only, never identifying (PII) fields', 'qhta-competitions' ); ?></label></td>
 			</tr>
 			<tr>
+				<th><label for="qc_spread"><?php esc_html_e( 'Judge spread warning', 'qhta-competitions' ); ?></label></th>
+				<td><input type="number" min="0" max="100" step="1" id="qc_spread" name="qc[judge_spread_margin]" value="<?php echo esc_attr( (string) $c['judge_spread_margin'] ); ?>" class="small-text"> <span class="description"><?php esc_html_e( 'percentage points — results warn when judges\' scores for an entry differ by more than this', 'qhta-competitions' ); ?></span></td>
+			</tr>
+			<tr>
 				<th><label for="qc_max_upload"><?php esc_html_e( 'Max upload size (MB)', 'qhta-competitions' ); ?></label></th>
 				<td><input type="number" min="1" step="1" id="qc_max_upload" name="qc[max_upload_mb]" value="<?php echo esc_attr( (string) $c['max_upload_mb'] ); ?>" class="small-text"> <span class="description"><?php esc_html_e( '.docx and .pdf only.', 'qhta-competitions' ); ?></span></td>
 			</tr>
@@ -626,7 +630,7 @@ final class Qhta_Competitions_Admin_Programs {
 			}
 			$config[ $name ] = $utc;
 		}
-		foreach ( array( 'late_grace_minutes', 'retention_months', 'max_upload_mb' ) as $name ) {
+		foreach ( array( 'late_grace_minutes', 'retention_months', 'max_upload_mb', 'judge_spread_margin' ) as $name ) {
 			if ( isset( $in[ $name ] ) ) {
 				$config[ $name ] = trim( sanitize_text_field( $in[ $name ] ) );
 			}

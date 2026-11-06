@@ -130,6 +130,7 @@ final class Qhta_Competitions_Program_CPT {
 			'word_count_rules'  => array( 'meta' => '_qc_word_count_rules', 'kind' => 'json' ),
 			'privacy_notice'    => array( 'meta' => '_qc_privacy_notice', 'kind' => 'scalar' ),
 			'max_upload_mb'     => array( 'meta' => '_qc_max_upload_mb', 'kind' => 'scalar' ),
+			'judge_spread_margin' => array( 'meta' => '_qc_judge_spread_margin', 'kind' => 'scalar' ),
 		);
 	}
 
@@ -175,6 +176,7 @@ final class Qhta_Competitions_Program_CPT {
 			),
 			'privacy_notice'     => '',
 			'max_upload_mb'      => 10,
+			'judge_spread_margin' => 15,
 		);
 	}
 
@@ -202,6 +204,7 @@ final class Qhta_Competitions_Program_CPT {
 				case 'late_grace_minutes':
 				case 'retention_months':
 				case 'max_upload_mb':
+				case 'judge_spread_margin':
 					$config[ $name ] = (int) $raw;
 					break;
 				case 'anonymise':
@@ -307,6 +310,7 @@ final class Qhta_Competitions_Program_CPT {
 			'word_count_rules'   => __( 'Word count rules', 'qhta-competitions' ),
 			'privacy_notice'     => __( 'Privacy notice', 'qhta-competitions' ),
 			'max_upload_mb'      => __( 'Max upload size', 'qhta-competitions' ),
+			'judge_spread_margin' => __( 'Judge spread warning', 'qhta-competitions' ),
 		);
 		return isset( $labels[ $name ] ) ? $labels[ $name ] : $name;
 	}
@@ -406,6 +410,21 @@ final class Qhta_Competitions_Program_CPT {
 	 */
 	private static function validate_max_upload_mb( $v, &$err ) {
 		return self::int_at_least( $v, $err, 1 );
+	}
+
+	/**
+	 * Percentage points (0–100).
+	 *
+	 * @param mixed    $v   Value.
+	 * @param string[] $err Errors.
+	 * @return int
+	 */
+	private static function validate_judge_spread_margin( $v, &$err ) {
+		$n = self::int_at_least( $v, $err, 0 );
+		if ( $n > 100 ) {
+			$err[] = __( 'must be 100 or less.', 'qhta-competitions' );
+		}
+		return $n;
 	}
 
 	/**

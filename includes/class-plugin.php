@@ -60,6 +60,7 @@ final class Qhta_Competitions_Plugin {
 		require_once QC_DIR . 'includes/class-form-handler.php';
 		require_once QC_DIR . 'includes/class-eligibility.php';
 		require_once QC_DIR . 'includes/class-confirm.php';
+		require_once QC_DIR . 'includes/class-judging.php';
 
 		Qhta_Competitions_Flags::init();
 		Qhta_Competitions_Program_CPT::init();
@@ -69,12 +70,15 @@ final class Qhta_Competitions_Plugin {
 		Qhta_Competitions_Form_Handler::init();
 		Qhta_Competitions_Eligibility::init();
 		Qhta_Competitions_Confirm::init();
+		Qhta_Competitions_Judging::init();
 
 		if ( is_admin() ) {
 			require_once QC_DIR . 'admin/class-admin-programs.php';
 			Qhta_Competitions_Admin_Programs::init();
 			require_once QC_DIR . 'admin/class-admin-submissions.php';
 			Qhta_Competitions_Admin_Submissions::init();
+			require_once QC_DIR . 'admin/class-admin-judging.php';
+			Qhta_Competitions_Admin_Judging::init();
 		}
 
 		add_action( 'plugins_loaded', array( __CLASS__, 'maybe_upgrade' ) );

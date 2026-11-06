@@ -81,6 +81,7 @@ if ( 'setup' === $qc_step ) {
 				'late_grace_minutes' => (string) $qc_before['late_grace_minutes'],
 				'retention_months'   => (string) $qc_before['retention_months'],
 				'max_upload_mb'      => (string) $qc_before['max_upload_mb'],
+				'judge_spread_margin' => (string) $qc_before['judge_spread_margin'],
 				'privacy_notice'     => $qc_before['privacy_notice'],
 				'_present'           => '1',
 			) + ( $qc_before['anonymise'] ? array( 'anonymise' => '1' ) : array() ),

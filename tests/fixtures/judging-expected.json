@@ -1,0 +1,67 @@
+{
+  "E1": {
+    "judges": {
+      "J1": 80.8333,
+      "J2": 76.6667
+    },
+    "mean": 78.75,
+    "spread": 4.1667,
+    "warn": false,
+    "complete": 2,
+    "rank": 2
+  },
+  "E2": {
+    "judges": {
+      "J1": 62.5,
+      "J2": 90.0
+    },
+    "mean": 76.25,
+    "spread": 27.5,
+    "warn": true,
+    "complete": 2,
+    "rank": 3
+  },
+  "E3": {
+    "judges": {
+      "J1": 70.0,
+      "J2": 70.0
+    },
+    "mean": 70.0,
+    "spread": 0.0,
+    "warn": false,
+    "complete": 2,
+    "rank": 4
+  },
+  "E4": {
+    "judges": {
+      "J1": 70.0,
+      "J2": null
+    },
+    "mean": 70.0,
+    "spread": null,
+    "warn": false,
+    "complete": 1,
+    "rank": 4
+  },
+  "E5": {
+    "judges": {
+      "J1": 50.8333,
+      "J2": null
+    },
+    "mean": 50.8333,
+    "spread": null,
+    "warn": false,
+    "complete": 1,
+    "rank": 6
+  },
+  "E6": {
+    "judges": {
+      "J1": 85.8333
+    },
+    "mean": 85.8333,
+    "spread": null,
+    "warn": false,
+    "complete": 1,
+    "rank": 1
+  }
+}

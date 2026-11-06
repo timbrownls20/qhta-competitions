@@ -244,6 +244,7 @@ final class Qhta_Competitions_Admin_Submissions {
 	 */
 	public static function bulk_actions( $actions ) {
 		return array(
+			'qc_to_review'    => __( 'Send to judging (In review)', 'qhta-competitions' ),
 			'qc_delete_tests' => __( 'Delete test entries', 'qhta-competitions' ),
 		);
 	}
@@ -257,7 +258,29 @@ final class Qhta_Competitions_Admin_Submissions {
 	 * @return string
 	 */
 	public static function handle_bulk( $redirect, $action, $ids ) {
-		if ( 'qc_delete_tests' !== $action || ! current_user_can( Qhta_Competitions_Plugin::CAP_MANAGE ) ) {
+		if ( ! current_user_can( Qhta_Competitions_Plugin::CAP_MANAGE ) ) {
+			return $redirect;
+		}
+		if ( 'qc_to_review' === $action ) {
+			$moved   = 0;
+			$skipped = 0;
+			foreach ( $ids as $id ) {
+				// Test entries never go to judges.
+				if ( Qhta_Competitions_Submission_CPT::is_test( $id ) || is_wp_error( Qhta_Competitions_Submission_CPT::transition( (int) $id, 'qc_in_review', __( 'Sent to judging', 'qhta-competitions' ) ) ) ) {
+					++$skipped;
+				} else {
+					++$moved;
+				}
+			}
+			return add_query_arg(
+				array(
+					'qc_reviewed'  => $moved,
+					'qc_rskipped'  => $skipped,
+				),
+				$redirect
+			);
+		}
+		if ( 'qc_delete_tests' !== $action ) {
 			return $redirect;
 		}
 		$deleted = 0;
@@ -284,7 +307,17 @@ final class Qhta_Competitions_Admin_Submissions {
 	 */
 	public static function bulk_notice() {
 		$screen = get_current_screen();
-		if ( ! $screen || 'edit-' . Qhta_Competitions_Submission_CPT::POST_TYPE !== $screen->id || ! isset( $_GET['qc_deleted'] ) ) {
+		if ( ! $screen || 'edit-' . Qhta_Competitions_Submission_CPT::POST_TYPE !== $screen->id ) {
+			return;
+		}
+		if ( isset( $_GET['qc_reviewed'] ) ) {
+			$moved   = absint( $_GET['qc_reviewed'] );
+			$skipped = isset( $_GET['qc_rskipped'] ) ? absint( $_GET['qc_rskipped'] ) : 0;
+			/* translators: 1: moved, 2: skipped */
+			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html( sprintf( __( '%1$d sent to judging. %2$d skipped (test entries, or not in "Submitted" status — entries awaiting referee confirmation must be confirmed first).', 'qhta-competitions' ), $moved, $skipped ) ) . '</p></div>';
+			return;
+		}
+		if ( ! isset( $_GET['qc_deleted'] ) ) {
 			return;
 		}
 		$deleted = absint( $_GET['qc_deleted'] );

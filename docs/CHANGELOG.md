@@ -1,5 +1,64 @@
 # Changelog
 
+## 0.4.0 — M4 (unreleased)
+
+### Added
+- **Judges** (Competitions → Judges): add an existing account by username or
+  email. This gives it the secondary `qhta_judge` role (`read` + `qc_judge`) via
+  `WP_User::add_role()`. The user's own role(s) and PMPro membership are
+  untouched; removing uses `remove_role()` and also takes the user off every
+  panel (their scores are kept). Each judge has a **School** for
+  conflict-of-interest checks.
+- **Judging panel** box on each round: assign judges per category.
+- **Send to judging** bulk action on Submissions (Submitted → In review; test
+  entries and anything still awaiting a referee are skipped).
+- **Judge dashboard** (wp-admin → Judging; judges land there after login):
+  - Lists assigned categories with progress bars ("4 of 6 scored") and entries
+    by **reference code only** while the round is anonymised.
+  - The scoring screen shows only judge-visible, non-PII fields, the inline
+    piece or a download link, and a rubric form (0–max, half points, a comment
+    per criterion and overall). Judges can save part-way; *Save and go to next*
+    jumps to the next unscored entry.
+  - Judges see only their own scores.
+- **Access rules** (`Qhta_Competitions_Judging::judge_can_access()`): a real
+  entry, In review or Shortlisted, in a category the judge is on, and not from
+  the judge's school. The same rule gates protected downloads, so tampering with
+  the ID in a download link gets a 403 (nonce, then capability). Judges can't
+  reach the submissions list, the submission edit screen, results or exports.
+- **Scores** in `{prefix}qc_scores` (one row per submission × judge ×
+  criterion; overall comment in `_overall`).
+- **Results** (Competitions → Results), per round and category:
+  - Rank, each judge's %, mean %, spread and "scored n / m", with conflicts of
+    interest shown as COI.
+  - A ⚠ when judges differ by more than the round's **Judge spread warning**
+    (new round setting, default 15 points).
+  - Bulk status change (Shortlisted / Awarded / Commended / Unsuccessful) that
+    follows the state diagram and reports any entries it couldn't move. No
+    emails are sent.
+  - Formula: judge % = Σ(score ÷ max × weight) ÷ Σ weight × 100, counted only
+    when every criterion is scored; mean = average of complete judge %s;
+    equal means (2 dp) share a rank.
+- **Judges' scores** box on the admin submission screen (each judge's scores
+  and comments).
+- `tests/m4-http-smoke.py`, `tests/fixtures/make-judging-fixture.py` →
+  `judging-scores.json`, `judging-expected.json` (computed independently of
+  the plugin) and `judging-handcalc.csv` (the same scores with live Excel
+  formulas, for checking by hand).
+
+### Notes
+- Judges are usually subscribers or customers. WooCommerce (and PMPro's "block
+  dashboard" setting) keep those users out of wp-admin, so this plugin lets
+  **judges only** through (`woocommerce_prevent_admin_access`,
+  `pmpro_block_dashboard`, `woocommerce_disable_admin_bar`). Check this on
+  staging with a real judge account.
+- Membership: PMPro stores memberships in its own tables, so adding or removing
+  a role can't change them. Locally this was shown with the test stub; confirm
+  it with real PMPro on staging.
+- Anonymity covers form fields only. A judge can still see a name typed inside
+  an uploaded document (the preset help text asks entrants not to).
+- `judging-handcalc.csv` uses AVERAGEIFS/MAXIFS/MINIFS and array SUMPRODUCT —
+  Excel 2019/365 or Google Sheets.
+
 ## 0.3.0 — M3 (unreleased)
 
 ### Added
