@@ -9,11 +9,9 @@ Full spec: [docs/SPEC.md](docs/SPEC.md). Changes: [docs/CHANGELOG.md](docs/CHANG
 
 ## Status
 
-**M4 done** — judges, panels, anonymised judge dashboard, scoring and ranked
-results, on top of M3 (referee confirmation, eligibility, entry limits,
-reminders), M2 (public form, uploads, word count, emails, flags, test entries)
-and M1. Next: M5 outcome emails, bursary coupon, exports, retention, Health
-panel. See spec §8.
+**M5 done** — outcome emails, bursary coupon (off by default), exports,
+retention and privacy tools, Health panel, on top of M1–M4. Next: M6 (README
+polish, privacy text, deploy, live smoke test). See spec §8.
 
 ## Requirements
 
@@ -103,6 +101,32 @@ marked `"admin_verify": true` (e.g. the QCT number).
 Judge % = Σ(score ÷ max × weight) ÷ Σ weight × 100 (once every criterion is
 scored); mean = average of judges' %s; equal means share a rank.
 
+### Outcome emails
+
+Select entries in **Submissions** → bulk action **Notify outcome**. The preview
+page shows each email as it will be sent and what's being skipped. Send
+yourself a test (required), then **Send**. Emails go out in batches of 20 a
+minute via WP-Cron. Each entry is emailed once per outcome unless you choose
+to re-send.
+
+### Bursary registration coupon
+
+Off by default (Q12 still open). Turn it on in the round's **Award (bursary)**
+box. Awarding an applicant then creates a single-use 100% coupon for that
+product and their email only, and the award email includes the code. With it
+off, the award email says QHTA will arrange registration.
+
+### Exports, retention, privacy, health
+
+- **Exports** — entries CSV (with or without personal details) and the
+  publication-consent register. Excel-ready; test entries are never included.
+- **Retention** — dry run per round and the purge date. Purging runs daily
+  once a round's retention period has passed; awarded/commended entries are kept.
+- **Tools → Export/Erase Personal Data** includes competition entries and
+  referee details.
+- **Health** — upload protection self-test, cron, mail test, feature flags,
+  coupon dependencies.
+
 ### Email
 
 Templates are per round (Email templates box). HTML uses
@@ -169,6 +193,12 @@ registered with wpff with the right defaults and owner.
 PMPro or a stub `pmpro_hasMembershipLevel()`) covers the referee link end to
 end, expiry, reuse, re-send, manual confirmation, reminders, membership
 detection, eligibility flags/blocks and entry limits.
+
+`m5-http-smoke.py` (needs Mailpit; the coupon part needs WooCommerce) covers
+the outcome preview / test / queue / batches of 20, the coupon (restrictions,
+a $0 order, wrong email refused, voiding on forfeit), CSV exports (BOM, PII
+split, formula neutralising, consent register, judges refused), the retention
+dry run and purge, the privacy exporter/eraser, and the Health checks.
 
 `m4-http-smoke.py` covers adding/removing the judge role (other roles and
 membership kept), panels, the bulk send-to-judging, judge login landing, the

@@ -1,5 +1,83 @@
 # Changelog
 
+## 0.5.0 — M5 (unreleased)
+
+### Added
+- **Outcome emails** (`class-outcomes.php`, Competitions → Outcome emails).
+  1. Select entries in Submissions and use the **Notify outcome** bulk action.
+  2. The preview page shows each outcome's email rendered for a real entry,
+     how many will go, and what's skipped and why: test entries, no final
+     outcome, no template, no email, or already notified (unless you choose to
+     re-send).
+  3. **Send me a test** sends each one to you as `[PREVIEW]`. **Send N emails**
+     stays disabled, and is refused server-side, until you've test-sent that
+     exact selection.
+  4. Emails are queued (`qc_outcome_queue`) and sent by WP-Cron in batches of
+     20, one minute apart. Status is re-checked at send time, sends are
+     recorded in `_qc_outcome_notified`, and there's an hourly safety net.
+- **Bursary coupon** (`class-bursary.php`, loaded only with WooCommerce;
+  **off by default — Q12**). With `coupon_enabled`, awarding creates a
+  single-use, individual-use 100% coupon `ECCB-{ref}`:
+  - limited to the configured product (or variation) and the applicant's email;
+  - the entry is recorded on the coupon;
+  - it goes into the award email via `{{registration_instructions}}`.
+  With the coupon off, that token reads: "QHTA will arrange your free
+  conference registration and email you the details — you do not need to
+  register or pay." Forfeiting voids (trashes) an unused coupon; a used one is
+  left and logged for manual follow-up. No coupon for test entries.
+  WooCommerce core APIs only.
+- **Exports** (`class-export.php`, Competitions → Exports, admins only).
+  - **Entries CSV**: fields, category, word counts, flags, Member?, verified
+    ticks, each declaration, consent, referee confirmation, rank, mean, each
+    judge's %, spread warning, outcome-email date.
+  - Personal information only in the separate **with personal details**
+    download.
+  - **Publication consent register**: awarded/commended entries with consent ✓,
+    entrant, school, year level, consent time and text, file name, admin link.
+  - UTF-8 BOM, CRLF, consistent columns; cells starting `= + - @` are prefixed
+    with `'` (formula injection). Test entries are never exported; judges get a
+    403.
+- **Retention** (`class-retention.php`, Competitions → Retention).
+  - Runs daily from the hourly cron. `retention_months` after close, every
+    entry not awarded or commended has its PII fields, files, typed signature,
+    IP and browser, referee details, contact email and match keys removed.
+    References, outcomes, non-PII answers and scores stay. Logged, recorded in
+    `_qc_purged`, irreversible.
+  - The page is a dry run per round ("N entries will be purged on {date}", with
+    the list); due rounds get **Purge now** behind a confirmation tick.
+- **Privacy tools**: WordPress personal-data exporter and eraser, keyed on
+  email (case-insensitive). Covers applicants/teachers and referees. The eraser
+  purges as above but keeps awarded/commended entries and says so.
+- **Health** (Competitions → Health):
+  - feature flags;
+  - upload protection self-test: a probe file is written and fetched over
+    HTTP, and a 200 is a fail (filter `qc_health_probe_url` for servers that
+    can't reach their own hostname);
+  - WP-Cron heartbeat (`qc_cron_last`) and DISABLE_WP_CRON note;
+  - outcome queue;
+  - the coupon's WooCommerce/product dependencies (only when a round uses it);
+  - PMPro availability;
+  - database version;
+  - **mail test** using the plugin's template, reporting `wp_mail_failed` errors.
+- `qc_email_tokens` filter on email tokens.
+- `tests/m5-http-smoke.py`. `tests/m1-smoke.php setup` now also deletes test
+  submissions (and their files).
+
+### Notes
+- **Reference codes repeat across rounds closing in the same year.** The spec's
+  `QC-{year}-{nnnn}` is a per-round sequence, so e.g. a 2027 bursary and a 2027
+  writing competition both produce `QC-2027-0001`. Everything in the plugin
+  works per round so this is safe internally, and coupon codes are now
+  de-duplicated. But two different entries can share a reference in emails and
+  conversations. Decision needed — see the M5 hand-over.
+- The coupon was tested against WooCommerce 10.2.2 locally:
+  - an order with the registration product and the applicant's email comes to $0;
+  - a different email is refused;
+  - another product isn't discounted.
+  The real **Events checkout** run on staging (product 4311) is still to do.
+- "Opens clean in Excel" was checked structurally (BOM, CRLF, quoting,
+  consistent columns, parsed as CSV); open one in Excel to confirm.
+
 ## 0.4.0 — M4 (unreleased)
 
 ### Added
