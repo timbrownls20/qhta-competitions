@@ -26,7 +26,7 @@ foreach ( array( 'qhta_submission', 'qhta_program' ) as $qc_type ) {
 
 $wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}qc_scores" );
 
-foreach ( array( 'qc_db_version', 'qc_round_flags', 'qc_delete_data_on_uninstall' ) as $qc_option ) {
+foreach ( array( 'qc_db_version', 'qc_round_flags', 'qc_outcome_queue', 'qc_cron_last', 'qc_retention_last_run', 'qc_delete_data_on_uninstall' ) as $qc_option ) {
 	delete_option( $qc_option );
 }
 

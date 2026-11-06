@@ -170,7 +170,7 @@ final class Qhta_Competitions_Mailer {
 		$status   = get_post_status( $submission_id );
 		$flags    = Qhta_Competitions_Util::get_json_meta( $submission_id, '_qc_flags', array() );
 
-		return array_merge(
+		$tokens = array_merge(
 			$tokens,
 			array(
 				'ref'                       => (string) get_post_meta( $submission_id, Qhta_Competitions_Submission_CPT::REF_META, true ),
@@ -186,5 +186,14 @@ final class Qhta_Competitions_Mailer {
 				'registration_instructions' => '',
 			)
 		);
+
+		/**
+		 * Email tokens for a submission (outcomes add registration_instructions).
+		 *
+		 * @param array $tokens        Tokens.
+		 * @param int   $submission_id Submission ID.
+		 * @param array $config        Round config.
+		 */
+		return (array) apply_filters( 'qc_email_tokens', $tokens, $submission_id, $config );
 	}
 }

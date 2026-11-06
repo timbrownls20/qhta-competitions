@@ -131,8 +131,9 @@ def ensure_page(slug, shortcode):
     return f'/{slug}/'
 
 
-def sub_meta(ref, keys):
-    code = ("$q=get_posts(array('post_type'=>'qhta_submission','post_status'=>array_keys(Qhta_Competitions_Submission_CPT::statuses()),'meta_key'=>'_qc_ref','meta_value'=>'%s','posts_per_page'=>1));"
+def sub_meta(ref, keys, parent=0):
+    """Meta for the submission with this reference. Refs are only unique within a round: pass parent when two rounds are in play."""
+    code = ("$q=get_posts(array('post_type'=>'qhta_submission','post_status'=>array_keys(Qhta_Competitions_Submission_CPT::statuses()),'meta_key'=>'_qc_ref','meta_value'=>'%s','posts_per_page'=>1" + (",'post_parent'=>%d" % parent if parent else '') + "));"
             "if(!$q){echo '{}';return;} $id=$q[0]->ID; $o=array('id'=>$id,'status'=>$q[0]->post_status);"
             "foreach(%s as $k){ $o[$k]=get_post_meta($id,$k,true);} echo wp_json_encode($o);") % (ref, 'array(' + ','.join(f"'{k}'" for k in keys) + ')')
     return json.loads(php(code) or '{}')

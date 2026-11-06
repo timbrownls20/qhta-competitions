@@ -61,6 +61,9 @@ final class Qhta_Competitions_Plugin {
 		require_once QC_DIR . 'includes/class-eligibility.php';
 		require_once QC_DIR . 'includes/class-confirm.php';
 		require_once QC_DIR . 'includes/class-judging.php';
+		require_once QC_DIR . 'includes/class-outcomes.php';
+		require_once QC_DIR . 'includes/class-export.php';
+		require_once QC_DIR . 'includes/class-retention.php';
 
 		Qhta_Competitions_Flags::init();
 		Qhta_Competitions_Program_CPT::init();
@@ -71,6 +74,11 @@ final class Qhta_Competitions_Plugin {
 		Qhta_Competitions_Eligibility::init();
 		Qhta_Competitions_Confirm::init();
 		Qhta_Competitions_Judging::init();
+		Qhta_Competitions_Outcomes::init();
+		Qhta_Competitions_Export::init();
+		Qhta_Competitions_Retention::init();
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_integrations' ), 20 );
+		add_action( 'qc_cron', array( __CLASS__, 'cron_heartbeat' ), 1 );
 
 		if ( is_admin() ) {
 			require_once QC_DIR . 'admin/class-admin-programs.php';
@@ -79,6 +87,8 @@ final class Qhta_Competitions_Plugin {
 			Qhta_Competitions_Admin_Submissions::init();
 			require_once QC_DIR . 'admin/class-admin-judging.php';
 			Qhta_Competitions_Admin_Judging::init();
+			require_once QC_DIR . 'admin/class-admin-tools.php';
+			Qhta_Competitions_Admin_Tools::init();
 		}
 
 		add_action( 'plugins_loaded', array( __CLASS__, 'maybe_upgrade' ) );
@@ -119,6 +129,24 @@ final class Qhta_Competitions_Plugin {
 	 */
 	public static function deactivate() {
 		wp_clear_scheduled_hook( 'qc_cron' );
+		wp_clear_scheduled_hook( 'qc_outcome_batch' );
+	}
+
+	/**
+	 * Optional integrations: the bursary coupon needs WooCommerce (loaded after us).
+	 */
+	public static function load_integrations() {
+		if ( class_exists( 'WooCommerce' ) ) {
+			require_once QC_DIR . 'includes/class-bursary.php';
+			Qhta_Competitions_Bursary::init();
+		}
+	}
+
+	/**
+	 * Record that the hourly task ran (shown on the Health page).
+	 */
+	public static function cron_heartbeat() {
+		Qhta_Competitions_Util::set_option( 'qc_cron_last', time() );
 	}
 
 	/**

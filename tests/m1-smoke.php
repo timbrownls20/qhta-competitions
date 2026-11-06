@@ -6,7 +6,7 @@
  *   wp eval-file wp-content/plugins/qhta-competitions/tests/m1-smoke.php setup
  *   wp eval-file wp-content/plugins/qhta-competitions/tests/m1-smoke.php verify
  *
- * DESTRUCTIVE: setup deletes every qhta_program on the site first. Never run on staging/live.
+ * DESTRUCTIVE: setup deletes every qhta_program and qhta_submission on the site first. Never run on staging/live.
  *
  * @package Qhta_Competitions
  */
@@ -35,6 +35,9 @@ if ( ! class_exists( 'Qhta_Competitions_Admin_Programs' ) ) {
 }
 
 if ( 'setup' === $qc_step ) {
+	foreach ( get_posts( array( 'post_type' => 'qhta_submission', 'post_status' => array_merge( array_keys( Qhta_Competitions_Submission_CPT::statuses() ), array( 'trash' ) ), 'posts_per_page' => -1, 'fields' => 'ids' ) ) as $qc_id ) {
+		wp_delete_post( $qc_id, true ); // Also removes their files.
+	}
 	foreach ( get_posts( array( 'post_type' => 'qhta_program', 'post_status' => array( 'any', 'trash' ), 'posts_per_page' => -1, 'fields' => 'ids' ) ) as $qc_id ) {
 		wp_delete_post( $qc_id, true );
 	}

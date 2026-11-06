@@ -36,3 +36,13 @@
 .qc-warn-row td { background: #fff8e5; }
 .qc-panel td, .qc-panel th { text-align: center; }
 .qc-panel td:first-child { text-align: left; }
+.qc-email-preview { background: #fff; border: 1px solid #dcdcde; border-left: 4px solid #1d3461; padding: 4px 16px; max-width: 820px; }
+.qc-email-preview pre { white-space: pre-wrap; font-family: inherit; font-size: 13px; }
+.qc-notify-actions form { display: inline-block; margin: 16px 12px 0 0; }
+.qc-skipped li { color: #646970; }
+.qc-refs { font-family: Menlo, Consolas, monospace; font-size: 12px; }
+.qc-health th { width: 220px; }
+.qc-health__icon { width: 24px; font-size: 16px; font-weight: 700; text-align: center; }
+.qc-health--ok .qc-health__icon { color: #00a32a; }
+.qc-health--warn .qc-health__icon { color: #dba617; }
+.qc-health--fail .qc-health__icon { color: #d63638; }
