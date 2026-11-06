@@ -1,0 +1,27 @@
+/* qhta-competitions admin. Scoped to .qc-* classes; loaded on plugin screens only. */
+.qc-json { font-family: Menlo, Consolas, monospace; font-size: 12px; line-height: 1.5; tab-size: 2; }
+.qc-json--error { border-color: #d63638 !important; box-shadow: 0 0 0 1px #d63638; }
+.qc-form-table th { width: 220px; }
+.qc-badge { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+.qc-badge--on { background: #d1e7dd; color: #0a3622; }
+.qc-badge--preview { background: #fff3cd; color: #664d03; }
+.qc-badge--off { background: #e2e3e5; color: #2b2f32; }
+.qc-flag-key { font-size: 11px; }
+.qc-warn { color: #b32d2e; font-weight: 600; }
+.qc-presets td { vertical-align: middle; }
+.qc-presets__action { width: 160px; text-align: right; }
+.qc-flag { color: #b32d2e; font-size: 12px; white-space: nowrap; }
+.qc-status { font-weight: 600; }
+.qc-inline-check { display: inline-block; margin: 0 8px; line-height: 30px; }
+.qc-entry th { width: 260px; }
+.qc-entry__heading th { background: #f0f2f5; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
+.qc-entry__long { max-width: 70ch; line-height: 1.55; }
+.qc-pii { font-size: 10px; background: #f0e6ff; color: #4b2c83; padding: 0 5px; border-radius: 8px; vertical-align: middle; }
+.qc-decl-list { margin: 0 0 12px; }
+.qc-decl-list li { margin-bottom: 6px; }
+.qc-sigblock { border-top: 1px solid #1d3461; padding-top: 6px; max-width: 520px; }
+.qc-sigblock__name { font-family: "Brush Script MT", "Segoe Script", cursive; font-size: 26px; color: #1d3461; margin: 0; }
+.qc-sigblock__meta { color: #646970; font-size: 12px; margin: 2px 0; }
+.qc-ref { font-size: 16px; }
+.qc-member { font-size: 15px; font-weight: 700; }
+.qc-confirm-actions form { margin: 12px 0; }

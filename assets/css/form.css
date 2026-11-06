@@ -1,0 +1,41 @@
+/* qhta-competitions front-end form. Everything scoped under .qc-form. */
+.qc-form { --qc-navy: #1d3461; --qc-gold: #c9a227; --qc-error: #b42318; --qc-muted: #5b6472; --qc-border: #c8ced8; max-width: 760px; margin: 1.5em 0; }
+.qc-form *, .qc-form *::before, .qc-form *::after { box-sizing: border-box; }
+.qc-form .qc-heading { color: var(--qc-navy); margin: 1.6em 0 .6em; padding-bottom: .3em; border-bottom: 3px solid var(--qc-gold); border-image: linear-gradient(90deg, #b8860b, #e6c35c, #b8860b) 1; font-size: 1.25em; }
+.qc-form .qc-field { margin: 0 0 1.1em; }
+.qc-form .qc-field > label, .qc-form fieldset > legend { display: block; font-weight: 600; margin-bottom: .3em; color: #1f2933; }
+.qc-form fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+.qc-form input[type="text"], .qc-form input[type="email"], .qc-form input[type="tel"], .qc-form select, .qc-form textarea { width: 100%; max-width: 100%; padding: .55em .7em; border: 1px solid var(--qc-border); border-radius: 4px; font: inherit; background: #fff; }
+.qc-form input:focus, .qc-form select:focus, .qc-form textarea:focus, .qc-form .qc-button:focus { outline: 2px solid var(--qc-navy); outline-offset: 2px; }
+.qc-form textarea { min-height: 8em; line-height: 1.5; }
+.qc-form .qc-choice { display: flex; gap: .55em; align-items: flex-start; font-weight: normal; margin: .35em 0; line-height: 1.45; }
+.qc-form .qc-choice input { margin-top: .25em; flex: none; }
+.qc-form .qc-sub { display: block; font-size: .9em; color: var(--qc-muted); margin: .5em 0 .2em; }
+.qc-form .qc-address-row { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: .6em; }
+@media (max-width: 520px) { .qc-form .qc-address-row { grid-template-columns: 1fr; } }
+.qc-form .qc-help { color: var(--qc-muted); font-size: .92em; margin: .35em 0 0; }
+.qc-form .qc-help p { margin: 0 0 .3em; }
+.qc-form .qc-help ul { margin: .2em 0 .4em 1.2em; padding: 0; }
+.qc-form .qc-req { color: var(--qc-error); }
+.qc-form .qc-required-note { color: var(--qc-muted); font-size: .9em; }
+.qc-form .qc-error { color: var(--qc-error); font-weight: 600; margin: .35em 0 0; }
+.qc-form .qc-field--error input, .qc-form .qc-field--error select, .qc-form .qc-field--error textarea { border-color: var(--qc-error); }
+.qc-form .qc-errors { border-left: 4px solid var(--qc-error); background: #fef3f2; padding: .8em 1em; margin-bottom: 1.2em; }
+.qc-form .qc-errors ul { margin: .3em 0 0 1.2em; }
+.qc-form .qc-wordcount { font-size: .9em; color: var(--qc-muted); margin: .3em 0 0; }
+.qc-form .qc-wordcount--over { color: var(--qc-error); font-weight: 600; }
+.qc-form .qc-note { color: var(--qc-navy); font-size: .92em; }
+.qc-form .qc-privacy { background: #f5f7fa; padding: .2em 1em .6em; border-radius: 4px; margin-bottom: 1em; }
+.qc-form .qc-privacy .qc-heading { margin-top: .8em; }
+.qc-form .qc-button { background: var(--qc-navy); color: #fff; border: 0; border-radius: 4px; padding: .75em 1.6em; font: inherit; font-weight: 600; cursor: pointer; }
+.qc-form .qc-button:hover { background: #142544; }
+.qc-form .qc-preview-banner { background: #fff3cd; border: 2px dashed #b8860b; color: #4d3a00; padding: .8em 1em; margin-bottom: 1.2em; border-radius: 4px; }
+.qc-form .qc-hp { position: absolute !important; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+.qc-form--message, .qc-form--done { border-left: 4px solid var(--qc-navy); background: #f5f7fa; padding: .8em 1.1em; }
+.qc-form--done { border-left-color: #2e7d32; }
+.qc-form--admin-note { border: 1px dashed var(--qc-error); padding: .6em 1em; color: var(--qc-error); }
+.qc-form .qc-summary { display: grid; grid-template-columns: minmax(140px, 32%) 1fr; gap: .4em 1em; background: #f5f7fa; padding: 1em; border-radius: 4px; margin: 1em 0 1.5em; }
+.qc-form .qc-summary dt { font-weight: 600; color: var(--qc-navy); }
+.qc-form .qc-summary dd { margin: 0; }
+@media (max-width: 520px) { .qc-form .qc-summary { grid-template-columns: 1fr; } .qc-form .qc-summary dd { margin-bottom: .6em; } }
+.qc-confirm-page { max-width: 820px; margin: 2em auto; padding: 0 1em; }

@@ -1,0 +1,120 @@
+{
+  "preset_version": 1,
+  "title": "ECC Bursary 2027",
+  "slug": "ecc-bursary-2027",
+  "description": "Early Career Conference bursary, 20 Feb 2027. The real first round. Up to $500 travel reimbursement (handled offline) plus free ECC registration.",
+  "_note": "Declaration, T&C and guidance wording drafted from the spec; check it against the PDF 'QHTA Bursary Application — Early Career Conference 20 Feb 2027' before opening the round.",
+  "config": {
+    "type": "bursary",
+    "opens_at_local": "2026-12-15T09:00",
+    "closes_at_local": "2027-01-29T00:00",
+    "late_grace_minutes": 0,
+    "anonymise": true,
+    "retention_months": 12,
+    "max_upload_mb": 10,
+    "privacy_notice": "<p>QHTA collects the details on this form to assess your bursary application. They are seen by QHTA administrators and the bursary selection committee; the committee sees your written piece without your name or school. Your referee receives your name and the program name so they can confirm your application. Unsuccessful applications are deleted 12 months after the round closes. Contact qhta@qhta.com.au with any privacy questions.</p>",
+    "categories": [
+      {
+        "slug": "ecc-bursary",
+        "label": "ECC Bursary",
+        "year_levels": [],
+        "word_min": null,
+        "word_max": 300,
+        "submission_kind": "inline"
+      }
+    ],
+    "fields": [
+      { "key": "h_about", "type": "heading", "label": "About you" },
+      { "key": "title", "type": "select", "label": "Title", "required": true, "pii": true, "options": ["Mr", "Mrs", "Ms", "Miss", "Mx", "Dr"] },
+      { "key": "full_name", "role": "entrant_name", "prefill": "name", "type": "text", "label": "Full name", "required": true, "pii": true },
+      { "key": "home_address", "prefill": "address", "type": "address", "label": "Home address", "required": true, "pii": true },
+      { "key": "email", "role": "submitter_email", "prefill": "email", "type": "email", "label": "Email", "required": true, "pii": true, "help": "We send your reference number and all correspondence here." },
+      { "key": "phone", "prefill": "phone", "type": "tel", "label": "Phone", "required": true, "pii": true },
+      { "key": "years_teaching", "type": "select", "label": "Years teaching", "required": true, "pii": false, "judge_visible": true, "options": ["Not yet teaching", "Less than 1 year", "1 year", "2 years", "3 years", "4 years", "5 years"] },
+      { "key": "school_name", "role": "school", "type": "text", "label": "School name", "required": true, "pii": true },
+      { "key": "school_address", "type": "address", "label": "School address", "required": true, "pii": true },
+      { "key": "qct_number", "admin_verify": true, "type": "text", "label": "QCT registration number", "required": true, "pii": true, "help": "Your Queensland College of Teachers registration number. QHTA checks this manually." },
+      { "key": "membership_type", "type": "radio", "label": "QHTA membership", "required": true, "pii": false, "judge_visible": false, "help": "Bursaries are open to QHTA members, either individually or through your school's institutional membership.", "options": [ { "value": "individual", "label": "Individual member" }, { "value": "institutional", "label": "Through my school's institutional membership" } ] },
+      { "key": "institution_name", "type": "text", "label": "Institutional member name", "required": true, "pii": true, "show_if": { "field": "membership_type", "equals": "institutional" } },
+      { "key": "outside_seq", "type": "checkbox", "label": "I live and work outside South-East Queensland", "required": true, "pii": false, "judge_visible": false, "help": "The bursary supports teachers in regional, rural and remote areas." },
+
+      { "key": "h_piece", "type": "heading", "label": "Written piece" },
+      { "key": "written_piece", "type": "richtext_limited", "label": "Being an early career History teacher in Regional, Rural and Remote Australia", "required": true, "pii": false, "judge_visible": true, "help": "Up to 300 words. You might consider:\n• what drew you to teaching History, and to teaching outside South-East Queensland\n• the opportunities and challenges of teaching History in your school and community\n• how you build your knowledge and practice when colleagues and resources are far away\n• what you hope to gain from the Early Career Conference\n• how you will share what you learn with your school or region\nDo not include your name or school in your piece — the selection committee reads it anonymously." },
+
+      { "key": "h_referee", "type": "heading", "label": "Referee" },
+      { "key": "help_referee", "type": "help", "help": "Your referee should be your Deputy Principal or Principal. We email them a link to confirm your application; it is not complete until they do." },
+      { "key": "not_in_post", "type": "checkbox", "label": "I am not yet in a teaching post for 2027", "required": false, "pii": false, "judge_visible": false, "help": "Tick this to nominate another professional referee instead (e.g. a university supervisor or mentor teacher)." },
+      { "key": "referee_name", "type": "text", "label": "Referee name", "required": true, "pii": true, "label_if": { "field": "not_in_post", "equals": "1", "label": "Other professional referee — name" } },
+      { "key": "referee_position", "type": "text", "label": "Referee position (Deputy Principal or Principal)", "required": true, "pii": true, "label_if": { "field": "not_in_post", "equals": "1", "label": "Other professional referee — position" } },
+      { "key": "referee_email", "type": "email", "label": "Referee email", "required": true, "pii": true, "label_if": { "field": "not_in_post", "equals": "1", "label": "Other professional referee — email" } }
+    ],
+    "declarations": [
+      { "key": "accept_terms", "required": true, "text": "I have read and accept the terms and conditions of the QHTA Early Career Conference Bursary: the bursary is open to early career History teachers who are registered with the Queensland College of Teachers, are QHTA members (individually or through an institutional membership), and live and work outside South-East Queensland. Successful applicants receive free registration to the Early Career Conference on 20 February 2027 and reimbursement of travel costs up to $500 on presentation of receipts. Bursaries are not transferable and cannot be exchanged for cash." },
+      { "key": "attend", "required": true, "text": "If successful, I will attend the Early Career Conference on 20 February 2027." },
+      { "key": "receipts", "required": true, "text": "I will provide receipts for travel costs claimed for reimbursement." },
+      { "key": "return_if_absent", "required": true, "text": "If I am unable to attend, I will notify QHTA as soon as possible and return any bursary funds already paid to me." },
+      { "key": "committee_final", "required": true, "text": "I accept that the selection committee's decision is final and no correspondence will be entered into." }
+    ],
+    "confirmer": {
+      "role": "referee",
+      "label": "Referee",
+      "email_field": "referee_email",
+      "name_field": "referee_name",
+      "declaration": "I confirm that the applicant is known to me in a professional capacity, that to the best of my knowledge the details in this application are true, and that I support their application for the QHTA Early Career Conference Bursary."
+    },
+    "eligibility": [
+      { "rule": "word_count", "mode": "block" },
+      { "rule": "required_true", "field": "outside_seq", "mode": "block", "message": "The bursary is open only to teachers who live and work outside South-East Queensland." },
+      { "rule": "qhta_membership", "field": "membership_type", "mode": "flag" },
+      { "rule": "entry_limits", "mode": "block" },
+      { "rule": "late", "mode": "block" },
+      { "rule": "confirmer_differs", "mode": "flag" }
+    ],
+    "rubric": {
+      "_note": "Placeholder criteria — confirm with the selection committee.",
+      "criteria": [
+        { "key": "context", "label": "Insight into teaching History in a regional, rural or remote context", "max": 10, "weight": 1 },
+        { "key": "reflection", "label": "Reflection on own practice and development", "max": 10, "weight": 1 },
+        { "key": "benefit", "label": "Likely benefit from attending, and plans to share", "max": 10, "weight": 1 },
+        { "key": "communication", "label": "Clarity of communication", "max": 10, "weight": 1 }
+      ]
+    },
+    "entry_limits": { "per_entrant_per_category": null, "per_school_per_category": null, "per_entrant_total": 1 },
+    "award_config": { "coupon_enabled": false, "coupon_product_id": 4311, "coupon_variation_id": null },
+    "word_count_rules": { "include_footnotes": true, "exclude_after_headings": ["Bibliography", "References", "Reference list", "Works cited"] },
+    "emails": {
+      "submitted": {
+        "subject": "Your {{program}} application — {{ref}}",
+        "body": "Dear {{title}} {{full_name}},\n\nThank you for applying for the {{program}}. Your reference number is {{ref}}.\n\nWe have emailed your referee, {{referee_name}}, asking them to confirm your application. Your application is complete once they confirm — please let them know to expect our email.\n\nApplications close {{closes_at}}.\n\nRegards,\nQHTA"
+      },
+      "confirm_request": {
+        "subject": "Please confirm {{full_name}}'s {{program}} application",
+        "body": "Dear {{referee_name}},\n\n{{full_name}} has applied for the {{program}} and nominated you as their referee.\n\nPlease review and confirm their application here:\n{{confirm_url}}\n\nThis link is for you only and works once. It expires {{confirm_expires}}.\n\nRegards,\nQHTA"
+      },
+      "confirmed": {
+        "subject": "Your referee has confirmed your application — {{ref}}",
+        "body": "Dear {{title}} {{full_name}},\n\nYour referee has confirmed your {{program}} application ({{ref}}). Your application is now complete and will be considered by the selection committee after applications close on {{closes_at}}.\n\nRegards,\nQHTA"
+      },
+      "admin_new": {
+        "subject": "New {{program}} application — {{ref}}",
+        "body": "A new application has been received.\n\nReference: {{ref}}\nApplicant: {{title}} {{full_name}} ({{email}})\nSchool: {{school_name}}\nStatus: {{status}}\nFlags: {{flags}}\n\nView: {{admin_url}}"
+      },
+      "reminder_confirm": {
+        "subject": "Reminder: please confirm {{full_name}}'s {{program}} application",
+        "body": "Dear {{referee_name}},\n\nApplications for the {{program}} close {{closes_at}}. {{full_name}}'s application is waiting for your confirmation:\n{{confirm_url}}\n\nRegards,\nQHTA"
+      },
+      "outcome_awarded": {
+        "subject": "{{program}} — congratulations",
+        "body": "Dear {{title}} {{full_name}},\n\nCongratulations — the selection committee has awarded you a {{program}} ({{ref}}).\n\nYour bursary includes free registration to the Early Career Conference on 20 February 2027 and reimbursement of travel costs up to $500. Please keep your receipts; QHTA will contact you about reimbursement after the conference.\n\n{{registration_instructions}}\n\nIf you can no longer attend, please let us know as soon as possible.\n\nRegards,\nQHTA"
+      },
+      "outcome_commended": {
+        "subject": "{{program}} — outcome",
+        "body": "Dear {{title}} {{full_name}},\n\nThank you for applying for the {{program}} ({{ref}}). The selection committee commended your application. We hope to see you at the Early Career Conference.\n\nRegards,\nQHTA"
+      },
+      "outcome_unsuccessful": {
+        "subject": "{{program}} — outcome",
+        "body": "Dear {{title}} {{full_name}},\n\nThank you for applying for the {{program}} ({{ref}}). We received many strong applications and unfortunately yours was not successful this time. We hope to see you at the Early Career Conference.\n\nRegards,\nQHTA"
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "footnotes-bibliography.docx": {
+    "body": 253,
+    "notes": 25,
+    "excluded": 17,
+    "total": 278
+  },
+  "endnotes-references.docx": {
+    "body": 166,
+    "notes": 15,
+    "excluded": 10,
+    "total": 181
+  },
+  "plain.docx": {
+    "body": 320,
+    "notes": 0,
+    "excluded": 0,
+    "total": 320
+  }
+}

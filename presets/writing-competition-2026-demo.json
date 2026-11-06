@@ -1,0 +1,100 @@
+{
+  "preset_version": 1,
+  "title": "Historical Writing Competition 2026 (demo)",
+  "slug": "writing-competition-2026-demo",
+  "description": "DEMO DATA for showing the committee. Dates, word limits, entry limits, rubric and judges are placeholders.",
+  "_note": "Declaration wording drafted from the spec; check it against the PDF 'QHTA Historical Writing Competition 2026 Entry Form'. Word limits are placeholders — set real ones per category per round.",
+  "config": {
+    "type": "competition",
+    "opens_at_local": "2026-11-16T09:00",
+    "closes_at_local": "2026-12-04T17:00",
+    "late_grace_minutes": 0,
+    "anonymise": true,
+    "retention_months": 12,
+    "max_upload_mb": 10,
+    "privacy_notice": "<p>Most entrants are students under 18, so QHTA collects only the student's name, year level and school — no student contact details. All correspondence goes to the teacher. Entries are seen by QHTA administrators and judges; judges see the entry and its reference number only, not the student's name or school. Details of entries that are not awarded or commended are deleted 12 months after the competition closes. Winning and commended entries may be published in QHTA's journal and/or website with the student's name and school. Contact qhta@qhta.com.au with any privacy questions.</p>",
+    "categories": [
+      { "slug": "year-7", "label": "Year 7", "year_levels": ["7"], "word_min": 600, "word_max": 1000, "submission_kind": "upload" },
+      { "slug": "year-8", "label": "Year 8", "year_levels": ["8"], "word_min": 600, "word_max": 1000, "submission_kind": "upload" },
+      { "slug": "year-9", "label": "Year 9", "year_levels": ["9"], "word_min": 800, "word_max": 1500, "submission_kind": "upload" },
+      { "slug": "year-10", "label": "Year 10", "year_levels": ["10"], "word_min": 800, "word_max": 1500, "submission_kind": "upload" },
+      { "slug": "y11-ancient-essay", "label": "Year 11 Ancient History – Essay", "year_levels": ["11"], "word_min": 1000, "word_max": 2000, "submission_kind": "upload" },
+      { "slug": "y11-ancient-isi", "label": "Year 11 Ancient History – ISI", "year_levels": ["11"], "word_min": 1500, "word_max": 2500, "submission_kind": "upload" },
+      { "slug": "y11-modern-essay", "label": "Year 11 Modern History – Essay", "year_levels": ["11"], "word_min": 1000, "word_max": 2000, "submission_kind": "upload" },
+      { "slug": "y11-modern-isi", "label": "Year 11 Modern History – ISI", "year_levels": ["11"], "word_min": 1500, "word_max": 2500, "submission_kind": "upload" },
+      { "slug": "y12-ancient-essay", "label": "Year 12 Ancient History – Essay", "year_levels": ["12"], "word_min": 1000, "word_max": 2000, "submission_kind": "upload" },
+      { "slug": "y12-ancient-isi", "label": "Year 12 Ancient History – ISI", "year_levels": ["12"], "word_min": 1500, "word_max": 2500, "submission_kind": "upload" },
+      { "slug": "y12-modern-essay", "label": "Year 12 Modern History – Essay", "year_levels": ["12"], "word_min": 1000, "word_max": 2000, "submission_kind": "upload" },
+      { "slug": "y12-modern-isi", "label": "Year 12 Modern History – ISI", "year_levels": ["12"], "word_min": 1500, "word_max": 2500, "submission_kind": "upload" },
+      { "slug": "first-nations", "label": "Australian First Nations Peoples History", "year_levels": ["7", "8", "9", "10", "11", "12"], "word_min": 600, "word_max": 2000, "submission_kind": "upload" },
+      { "slug": "human-rights-7-10", "label": "Human Rights & Civil Liberties (Years 7–10)", "year_levels": ["7", "8", "9", "10"], "word_min": 600, "word_max": 1500, "submission_kind": "upload" },
+      { "slug": "human-rights-11-12", "label": "Human Rights & Civil Liberties (Years 11–12)", "year_levels": ["11", "12"], "word_min": 1000, "word_max": 2000, "submission_kind": "upload" }
+    ],
+    "fields": [
+      { "key": "help_teacher", "type": "help", "help": "Entries are submitted by the student's teacher. We don't collect any student contact details; all correspondence goes to the teacher." },
+      { "key": "h_student", "type": "heading", "label": "Student" },
+      { "key": "student_name", "role": "entrant_name", "type": "text", "label": "Student name", "required": true, "pii": true },
+      { "key": "year_level", "type": "year_level", "label": "Year level", "required": true, "pii": true, "options": ["7", "8", "9", "10", "11", "12"], "help": "The category list shows only categories open to this year level." },
+      { "key": "school_name", "role": "school", "type": "text", "label": "School", "required": true, "pii": true },
+
+      { "key": "h_teacher", "type": "heading", "label": "Teacher" },
+      { "key": "teacher_name", "prefill": "name", "type": "text", "label": "Teacher name", "required": true, "pii": true },
+      { "key": "teacher_email", "role": "submitter_email", "prefill": "email", "type": "email", "label": "Teacher email", "required": true, "pii": true, "help": "We send the reference number and the outcome here." },
+      { "key": "teacher_phone", "prefill": "phone", "type": "tel", "label": "Teacher phone", "required": true, "pii": true },
+      { "key": "principal_name", "type": "text", "label": "Principal name", "required": true, "pii": true },
+      { "key": "school_address", "type": "address", "label": "School address", "required": true, "pii": true },
+
+      { "key": "h_entry", "type": "heading", "label": "Entry" },
+      { "key": "entry_file", "type": "file", "label": "Entry document", "required": true, "pii": false, "judge_visible": true, "help": ".docx or .pdf only, up to 10 MB. Do not put the student's name or school in the document — judging is anonymous." },
+      { "key": "word_count_declared", "type": "text", "label": "Word count", "required": true, "pii": false, "judge_visible": true, "help": "Footnotes count towards the word count; the bibliography does not." }
+    ],
+    "declarations": [
+      { "key": "original_work", "required": true, "text": "This entry is the student's original work, completed with no more than the usual level of teacher guidance." },
+      { "key": "judges_final", "required": true, "text": "The judges' decision is final and no correspondence will be entered into." },
+      { "key": "publication_consent", "required": true, "kind": "publication_consent", "text": "QHTA may publish this entry, with the student's name and school, in its journal and/or on its website." },
+      { "key": "permission", "required": true, "text": "I have the student's and parent/guardian's permission to submit this entry on these terms." }
+    ],
+    "confirmer": { "role": "none", "label": "", "email_field": "" },
+    "eligibility": [
+      { "rule": "year_level_category", "mode": "block" },
+      { "rule": "word_count", "mode": "flag" },
+      { "rule": "entry_limits", "mode": "block" },
+      { "rule": "late", "mode": "block" }
+    ],
+    "rubric": {
+      "_note": "Placeholder criteria for the demo.",
+      "criteria": [
+        { "key": "question", "label": "Response to the question / focus of inquiry", "max": 10, "weight": 1 },
+        { "key": "sources", "label": "Research and use of sources", "max": 10, "weight": 1.5 },
+        { "key": "analysis", "label": "Analysis and evaluation", "max": 10, "weight": 1.5 },
+        { "key": "argument", "label": "Historical argument", "max": 10, "weight": 1 },
+        { "key": "communication", "label": "Communication and referencing", "max": 10, "weight": 1 }
+      ]
+    },
+    "entry_limits": { "per_entrant_per_category": 1, "per_school_per_category": null, "per_entrant_total": null },
+    "award_config": { "coupon_enabled": false, "coupon_product_id": null, "coupon_variation_id": null },
+    "word_count_rules": { "include_footnotes": true, "exclude_after_headings": ["Bibliography", "References", "Reference list", "Works cited"] },
+    "emails": {
+      "submitted": {
+        "subject": "{{program}} entry received — {{ref}}",
+        "body": "Dear {{teacher_name}},\n\nThank you for entering {{student_name}} in the {{program}} ({{category}}). The reference number for this entry is {{ref}}.\n\nEntries close {{closes_at}}. Results will be emailed to you.\n\nRegards,\nQHTA"
+      },
+      "admin_new": {
+        "subject": "New {{program}} entry — {{ref}}",
+        "body": "A new entry has been received.\n\nReference: {{ref}}\nCategory: {{category}}\nSchool: {{school_name}}\nTeacher: {{teacher_name}} ({{teacher_email}})\nFlags: {{flags}}\n\nView: {{admin_url}}"
+      },
+      "outcome_awarded": {
+        "subject": "{{program}} — {{student_name}} is a winner",
+        "body": "Dear {{teacher_name}},\n\nCongratulations — {{student_name}}'s entry ({{ref}}) has won the {{category}} category of the {{program}}.\n\nAs agreed on entry, QHTA may publish the entry in its journal and/or on its website. We will be in touch about certificates.\n\nRegards,\nQHTA"
+      },
+      "outcome_commended": {
+        "subject": "{{program}} — {{student_name}} is commended",
+        "body": "Dear {{teacher_name}},\n\nCongratulations — {{student_name}}'s entry ({{ref}}) has been highly commended in the {{category}} category of the {{program}}.\n\nRegards,\nQHTA"
+      },
+      "outcome_unsuccessful": {
+        "subject": "{{program}} — results",
+        "body": "Dear {{teacher_name}},\n\nThank you for entering {{student_name}} in the {{program}} ({{ref}}). The standard was very high and unfortunately the entry was not placed this year. Please pass on our thanks to {{student_name}}.\n\nRegards,\nQHTA"
+      }
+    }
+  }
+}
