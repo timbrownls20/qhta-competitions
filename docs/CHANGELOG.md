@@ -42,6 +42,13 @@
   function. Listed in `docs/HEALTHCHECK.md`, with the rule that a new external
   dependency gets its canary in the same change.
 
+- **Copy for next year** (round list row action and the round's Publish
+  box): creates a draft with every setting copied, 20xx years in the title
+  plus one, open/close dates a year later (same local time; 29 Feb → 28 Feb)
+  and a new flag key from the new slug. Entries, scores and the old flag key
+  are not copied; `_qc_copied_from` records the source. A warning lists the
+  sections whose text still contains the old year(s).
+
 ### Changed
 - The JSON for each section moved under *Advanced: edit as JSON* in its box.
   It is still what's saved: the editor reads and writes it, so validation,

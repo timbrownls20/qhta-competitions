@@ -44,6 +44,13 @@ lists the checks that can only be done on a real server and the open decisions
    - *ECC Bursary 2027* — the real first round;
    - *Historical Writing Competition 2026 (demo)* — for showing the committee;
    - or *Add blank round*.
+
+   **Next year's round:** on *Program rounds*, hover the round and click
+   *Copy for next year* (also in the round's Publish box). You get a draft
+   with every setting copied, years in the title moved on by one (*ECC
+   Bursary 2027* → *ECC Bursary 2028*), the open and close dates a year
+   later, and its own feature flag. Entries and scores are not copied. A
+   notice lists any boxes whose wording still mentions the old year.
 2. Edit the round. Everything is point-and-click:
    - **Form fields:** *Add a question*, pick its type (short answer, dropdown,
      tick box, file upload…), and click a question to edit its wording,

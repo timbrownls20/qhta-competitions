@@ -1,6 +1,7 @@
 <?php
 /**
- * Program round admin: edit-screen meta boxes, save, "New from preset", list columns.
+ * Program round admin: edit-screen meta boxes, save, "New from preset",
+ * "Copy for next year", list columns.
  *
  * Simple settings are form inputs. Structured config (categories, fields,
  * declarations, eligibility, rubric, emails) is edited with the visual editor
@@ -44,6 +45,9 @@ final class Qhta_Competitions_Admin_Programs {
 		add_action( 'admin_notices', array( __CLASS__, 'notices' ) );
 		add_action( 'admin_menu', array( __CLASS__, 'menu' ) );
 		add_action( 'admin_post_qc_create_from_preset', array( __CLASS__, 'handle_create_from_preset' ) );
+		add_action( 'admin_post_qc_copy_round', array( __CLASS__, 'handle_copy_round' ) );
+		add_filter( 'post_row_actions', array( __CLASS__, 'row_actions' ), 10, 2 );
+		add_action( 'post_submitbox_misc_actions', array( __CLASS__, 'submitbox_copy_link' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'assets' ) );
 
 		add_filter( 'manage_' . $pt . '_posts_columns', array( __CLASS__, 'columns' ) );
@@ -368,6 +372,186 @@ final class Qhta_Competitions_Admin_Programs {
 		self::queue_notices( $messages );
 		wp_safe_redirect( get_edit_post_link( $post_id, 'raw' ) );
 		exit;
+	}
+
+	/* ---------------------------------------------------------------------
+	 * Copy for next year
+	 * ------------------------------------------------------------------ */
+
+	/**
+	 * Signed link that copies a round.
+	 *
+	 * @param int $post_id Program ID.
+	 * @return string
+	 */
+	public static function copy_url( $post_id ) {
+		return wp_nonce_url( admin_url( 'admin-post.php?action=qc_copy_round&post=' . (int) $post_id ), 'qc_copy_round_' . (int) $post_id );
+	}
+
+	/**
+	 * "Copy for next year" on the rounds list.
+	 *
+	 * @param array   $actions Row actions.
+	 * @param WP_Post $post    Post.
+	 * @return array
+	 */
+	public static function row_actions( $actions, $post ) {
+		if ( Qhta_Competitions_Program_CPT::POST_TYPE !== $post->post_type || 'trash' === $post->post_status || ! current_user_can( Qhta_Competitions_Plugin::CAP_MANAGE ) ) {
+			return $actions;
+		}
+		$actions['qc_copy'] = '<a href="' . esc_url( self::copy_url( $post->ID ) ) . '">' . esc_html__( 'Copy for next year', 'qhta-competitions' ) . '</a>';
+		return $actions;
+	}
+
+	/**
+	 * The same link in the edit screen's Publish box.
+	 *
+	 * @param WP_Post $post Post.
+	 */
+	public static function submitbox_copy_link( $post ) {
+		if ( Qhta_Competitions_Program_CPT::POST_TYPE !== $post->post_type || 'auto-draft' === $post->post_status || ! current_user_can( Qhta_Competitions_Plugin::CAP_MANAGE ) ) {
+			return;
+		}
+		echo '<div class="misc-pub-section"><a href="' . esc_url( self::copy_url( $post->ID ) ) . '">' . esc_html__( 'Copy for next year', 'qhta-competitions' ) . '</a></div>';
+	}
+
+	/**
+	 * Copy a round, then go to the copy's edit screen.
+	 */
+	public static function handle_copy_round() {
+		$source = isset( $_GET['post'] ) ? absint( $_GET['post'] ) : 0;
+		if ( ! current_user_can( Qhta_Competitions_Plugin::CAP_MANAGE ) ) {
+			wp_die( esc_html__( 'Sorry, you are not allowed to do that.', 'qhta-competitions' ), 403 );
+		}
+		check_admin_referer( 'qc_copy_round_' . $source );
+
+		list( $post_id, $messages ) = self::copy_round( $source );
+		if ( is_wp_error( $post_id ) ) {
+			wp_die( esc_html( $post_id->get_error_message() ) );
+		}
+		self::queue_notices( $messages );
+		wp_safe_redirect( get_edit_post_link( $post_id, 'raw' ) );
+		exit;
+	}
+
+	/**
+	 * Copy a round's settings into a new draft for next year. Years in the
+	 * title move on by one and the open/close dates by a year; entries, the
+	 * flag key and judging are not copied (the copy gets its own flag).
+	 *
+	 * @param int $source_id Program to copy.
+	 * @return array{0: int|WP_Error, 1: array<int, array{0:string,1:string}>} [new ID, notices]
+	 */
+	public static function copy_round( $source_id ) {
+		$source = get_post( $source_id );
+		if ( ! $source || Qhta_Competitions_Program_CPT::POST_TYPE !== $source->post_type ) {
+			return array( new WP_Error( 'qc_no_round', __( 'Round not found.', 'qhta-competitions' ) ), array() );
+		}
+
+		$years = array();
+		$title = preg_replace_callback(
+			'/\b(20\d\d)\b/',
+			function ( $m ) use ( &$years ) {
+				$years[ $m[1] ] = true;
+				return (string) ( (int) $m[1] + 1 );
+			},
+			$source->post_title
+		);
+		if ( ! $years ) {
+			/* translators: %s: title of the round being copied. */
+			$title = sprintf( __( '%s (copy)', 'qhta-competitions' ), $source->post_title );
+		}
+
+		$post_id = wp_insert_post(
+			array(
+				'post_type'    => Qhta_Competitions_Program_CPT::POST_TYPE,
+				'post_status'  => 'draft',
+				'post_title'   => $title,
+				'post_name'    => sanitize_title( $title ),
+				'post_content' => $source->post_content,
+			),
+			true
+		);
+		if ( is_wp_error( $post_id ) ) {
+			return array( $post_id, array() );
+		}
+
+		$config = Qhta_Competitions_Program_CPT::get_config( $source_id );
+		foreach ( array( 'opens_at', 'closes_at' ) as $k ) {
+			$ts = Qhta_Competitions_Util::utc_to_timestamp( $config[ $k ] );
+			if ( null !== $ts ) {
+				$years[ wp_date( 'Y', $ts ) ] = true;
+				$config[ $k ]                = self::add_year( $ts );
+			}
+		}
+		$errors = Qhta_Competitions_Program_CPT::save_config( $post_id, $config );
+		$preset = get_post_meta( $source_id, '_qc_preset', true );
+		if ( '' !== $preset ) {
+			update_post_meta( $post_id, '_qc_preset', $preset );
+		}
+		update_post_meta( $post_id, '_qc_copied_from', (int) $source_id );
+
+		$messages = array( array( 'success', sprintf( /* translators: %s: source round title. */ __( 'Copied from "%s" as a draft. The open and close dates have moved on a year — check them, then publish.', 'qhta-competitions' ), $source->post_title ) ) );
+		foreach ( $errors as $e ) {
+			$messages[] = array( 'error', $e );
+		}
+		ksort( $years );
+		$mentions = self::sections_mentioning( $config, array_keys( $years ) );
+		if ( $mentions ) {
+			$messages[] = array(
+				'warning',
+				sprintf(
+					/* translators: 1: year(s), 2: list of sections. */
+					__( 'The old year (%1$s) still appears in: %2$s. Update the wording where it should change.', 'qhta-competitions' ),
+					implode( ', ', array_keys( $years ) ),
+					implode( ', ', $mentions )
+				),
+			);
+		}
+		return array( $post_id, $messages );
+	}
+
+	/**
+	 * Same local date and time a year later, as a UTC string. 29 Feb becomes 28 Feb.
+	 *
+	 * @param int $ts Timestamp.
+	 * @return string
+	 */
+	private static function add_year( $ts ) {
+		$d = new DateTime( '@' . $ts );
+		$d->setTimezone( wp_timezone() );
+		$y = (int) $d->format( 'Y' ) + 1;
+		$m = (int) $d->format( 'n' );
+		$day = (int) $d->format( 'j' );
+		$max = (int) ( new DateTime( sprintf( '%04d-%02d-01', $y, $m ) ) )->format( 't' );
+		$d->setDate( $y, $m, min( $day, $max ) );
+		$d->setTimezone( new DateTimeZone( 'UTC' ) );
+		return $d->format( Qhta_Competitions_Util::UTC_FORMAT );
+	}
+
+	/**
+	 * Labels of config sections whose text contains any of the given years.
+	 *
+	 * @param array    $config Config.
+	 * @param string[] $years  Four-digit years.
+	 * @return string[]
+	 */
+	private static function sections_mentioning( array $config, array $years ) {
+		if ( ! $years ) {
+			return array();
+		}
+		$pattern = '/\b(' . implode( '|', array_map( 'preg_quote', $years ) ) . ')\b/';
+		$out     = array();
+		foreach ( $config as $name => $value ) {
+			if ( in_array( $name, array( 'opens_at', 'closes_at' ), true ) ) {
+				continue;
+			}
+			$text = is_scalar( $value ) ? (string) $value : (string) wp_json_encode( $value );
+			if ( preg_match( $pattern, $text ) ) {
+				$out[] = Qhta_Competitions_Program_CPT::section_label( $name );
+			}
+		}
+		return $out;
 	}
 
 	/* ---------------------------------------------------------------------
